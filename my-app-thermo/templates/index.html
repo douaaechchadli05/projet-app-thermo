@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Pression de Bulle - Benzène/Toluène</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f5f7ff;
+  --surface:#ffffff;
+  --border:#e0e6f5;
+  --primary:#6c63ff;
+  --pink:#ff6fa5;
+  --gradient:linear-gradient(135deg,#6c63ff,#ff6fa5);
+  --text:#1e293b;
+  --muted:#64748b;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --font-main:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:var(--font-main);
+  background:var(--bg);
+  color:var(--text);
+}
+
+nav{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:1.2rem 2rem;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:0.8rem;
+}
+
+.logo{
+  font-weight:600;
+  font-size:1.3rem;
+  background:var(--gradient);
+  background-clip:text;           
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.btn-hist{
+  background:var(--gradient);
+  color:white;
+  border:none;
+  padding:0.6rem 1.2rem;
+  border-radius:40px;
+  font-weight:600;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:0.2s;
+  font-family:var(--font-main);
+}
+
+.btn-hist:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(108,99,255,0.3);
+}
+
+.page{
+  max-width:900px;
+  margin:auto;
+  padding:2rem;
+}
+
+@media(max-width:700px){
+  .page{
+    padding:1rem;
+  }
+  nav{
+    padding:1rem;
+  }
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:1.5rem;
+  margin-bottom:1.2rem;
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+.intro{
+  background:linear-gradient(135deg,#ffffff,#fdf2ff);
+  border:1px solid #f0d9ff;
+}
+
+.section-title{
+  font-size:0.95rem;   
+  text-transform:uppercase;
+  color:#0f172a;         
+  margin-bottom:0.8rem;
+  letter-spacing:1px;
+  font-weight:600;        
+}
+
+.formula{
+  font-family:var(--mono);
+  background:#f8faff;
+  padding:8px;
+  border-radius:8px;
+  margin-top:6px;
+  font-size:0.85rem;
+}
+
+.inputs-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:1rem;
+}
+
+@media(max-width:700px){
+  .inputs-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+label{
+  font-size:0.8rem;
+  color:var(--muted);
+  display:block;
+}
+
+input{
+  width:100%;
+  margin-top:5px;
+  padding:0.65rem;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-family:var(--mono);
+  transition:0.2s;
+}
+
+input:focus{
+  outline:none;
+  border-color:var(--pink);
+  box-shadow:0 0 0 2px rgba(255,111,165,0.2);
+}
+
+.btn{
+  width:100%;
+  padding:0.9rem;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+  font-family:var(--font-main);
+  font-size:1rem;
+}
+
+.btn-main{
+  background:var(--gradient);
+  color:white;
+}
+
+.btn-main:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.1);
+}
+
+.btn-reset{
+  background:#ffe4ef;
+  color:#a1004f;
+  margin-top:0.6rem;
+}
+
+.sum-bar{
+  margin-top:12px;
+  padding:8px;
+  border-radius:8px;
+  text-align:center;
+  font-size:0.85rem;
+}
+
+.sum-bar.ok{background:#ecfdf5;color:var(--success);}
+.sum-bar.bad{background:#fef2f2;color:var(--danger);}
+
+#resultats{
+  display:none;
+  margin-top:1rem;
+  animation:fade 0.4s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;}
+}
+
+.q-block{
+  background:#ffffff;
+  border-radius:14px;
+  padding:1.2rem;
+  margin-bottom:1rem;
+  border:1px solid var(--border);
+  border-left:5px solid var(--pink);
+}
+
+.q-block h3{
+  margin-bottom:0.5rem;
+  font-size:1rem;
+}
+
+.q-block p{
+  font-family:var(--mono);
+  font-size:0.85rem;
+  margin-top:4px;
+  color:var(--text);
+}
+
+.big-result{
+  font-size:2rem;
+  font-weight:600;
+  background:var(--gradient);
+  background-clip:text;           
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.error-bar{
+  background:#fef2f2;
+  color:var(--danger);
+  border-radius:8px;
+  padding:10px;
+  margin-top:10px;
+  font-size:0.85rem;
+  display:none;
+}
+
+/* MODAL HISTORIQUE */
+.modal {
+  display: none;
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color: rgba(0,0,0,0.5);
+  align-items: center;
+  justify-content: center;
+  z-index:1000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background: white;
+  max-width: 95%;
+  width: 750px;
+  max-height: 85vh;
+  border-radius: 24px;
+  overflow-y: auto;
+  padding: 1.8rem;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  background: var(--gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.close-modal {
+  background: #fee2e2;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  color: var(--danger);
+}
+
+.close-modal:hover {
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.btn-modal-delete-all {
+  background: #fee2e2;
+  color: var(--danger);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.btn-modal-delete-all:hover {
+  background: #fecaca;
+}
+
+.btn-modal-refresh {
+  background: #e2e8f0;
+  color: var(--text);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.btn-modal-refresh:hover {
+  background: #cbd5e1;
+}
+
+.historique-list {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.historique-item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid var(--border);
+  transition: 0.2s;
+}
+
+.historique-item:hover {
+  background: #f1f5f9;
+}
+
+.historique-header-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.historique-nom {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.historique-date {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.historique-details {
+  font-size: 0.8rem;
+  color: var(--text);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.historique-details span {
+  font-family: var(--mono);
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: var(--danger);
+  border: none;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+}
+
+.loading, .empty-history {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #1e293b;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  z-index: 1001;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <div class="logo">⚗️ Exercice calcul de pression de bulle</div>
+  <button class="btn-hist" onclick="ouvrirHistorique()">📜 Historique</button>
+</nav>
+
+<div class="page">
+
+<div class="card intro">
+  <div class="section-title">Présentation scientifique</div>
+  <p style="font-size:0.9rem;line-height:1.6;color:var(--muted);">
+    Cette application calcule la <b>pression de bulle</b> d'un mélange binaire
+    <b>Benzène / Toluène</b> en utilisant la loi de Raoult et l'équation d'Antoine.
+  </p>
+  <div class="formula">Loi de Raoult : P = x₁·P₁* + x₂·P₂*</div>
+  <div class="formula">Antoine : log₁₀(P*) = A - B / (T + C)  [P en mmHg, T en °C]</div>
+  <div class="formula">Fraction vapeur : yᵢ = (xᵢ·Pᵢ*) / P</div>
+</div>
+
+<div class="card">
+  <div class="section-title">Nom du calcul</div>
+  <input type="text" id="nom" placeholder="Ex : Mélange 40% benzène à 80°C"/>
+</div>
+
+<div class="card">
+  <div class="section-title">Données</div>
+  <div class="inputs-grid">
+    <div>
+      <label>Température (°C)</label>
+      <input type="number" id="temperature" value="80"/>
+    </div>
+    <div>
+      <label>Fraction molaire de Benzène (x₁)</label>
+      <input type="number" id="x1" value="0.4" step="0.01" min="0" max="1" oninput="autoX2()"/>
+    </div>
+    <div>
+      <label>Fraction molaire de Toluène (x₂)</label>
+      <input type="number" id="x2" value="0.6" step="0.01" min="0" max="1" oninput="updateSum()"/>
+    </div>
+  </div>
+  <div id="sum-bar" class="sum-bar ok">x₁ + x₂ = 1.00</div>
+  <div id="error-bar" class="error-bar"></div>
+</div>
+
+<button class="btn btn-main" onclick="calculer()">Calculer</button>
+<button class="btn btn-reset" onclick="resetForm()">Réinitialiser</button>
+
+<div id="resultats">
+
+  <div class="q-block">
+    <h3>Pressions de vapeur saturante (Antoine)</h3>
+    <p id="r-ant-benzene"></p>
+    <p id="r-ant-toluene"></p>
+  </div>
+
+  <div class="q-block">
+    <h3>Pression de bulle</h3>
+    <div class="big-result" id="q1-result"></div>
+  </div>
+
+  <div class="q-block">
+    <h3>Fractions molaires en phase vapeur</h3>
+    <p id="q2-r1"></p>
+    <p id="q2-r2"></p>
+  </div>
+
+  <div class="q-block">
+    <h3>Vérification (Σyᵢ doit = 1)</h3>
+    <p id="q3-s"></p>
+  </div>
+
+</div>
+
+</div>
+
+<!-- MODAL HISTORIQUE -->
+<div id="modalHistorique" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>📋 Historique des calculs</h2>
+      <button class="close-modal" onclick="fermerHistorique()">&times;</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-delete-all" onclick="supprimerToutHistorique()">🗑️ Tout supprimer</button>
+      <button class="btn-modal-refresh" onclick="chargerHistorique()">🔄 Rafraîchir</button>
+    </div>
+    <div id="historique-container">
+      <div class="loading">Chargement de l'historique...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Fonctions utilitaires
+function autoX2() {
+  const x1 = parseFloat(document.getElementById('x1').value) || 0;
+  const x2Input = document.getElementById('x2');
+  let newX2 = (1 - x1).toFixed(4);
+  newX2 = Math.min(1, Math.max(0, parseFloat(newX2)));
+  x2Input.value = newX2.toFixed(4);
+  updateSum();
+}
+
+function updateSum() {
+  const x1 = parseFloat(document.getElementById('x1').value) || 0;
+  const x2 = parseFloat(document.getElementById('x2').value) || 0;
+  const sum = x1 + x2;
+  const bar = document.getElementById('sum-bar');
+  bar.innerText = "x₁ + x₂ = " + sum.toFixed(4);
+  bar.className = "sum-bar " + (Math.abs(sum - 1) < 0.01 ? "ok" : "bad");
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-bar');
+  el.innerText = msg;
+  el.style.display = 'block';
+  setTimeout(() => {
+    el.style.display = 'none';
+  }, 5000);
+}
+
+function clearError() {
+  document.getElementById('error-bar').style.display = 'none';
+}
+
+function showToast(message, isError = false) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.style.background = isError ? '#dc2626' : '#16a34a';
+  toast.innerText = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+function resetForm() {
+  document.getElementById('nom').value = '';
+  document.getElementById('temperature').value = 80;
+  document.getElementById('x1').value = 0.4;
+  document.getElementById('x2').value = 0.6;
+  updateSum();
+  clearError();
+  document.getElementById('resultats').style.display = 'none';
+}
+
+// Gestion de la modale
+function ouvrirHistorique() {
+  const modal = document.getElementById('modalHistorique');
+  modal.style.display = 'flex';
+  chargerHistorique();
+}
+
+function fermerHistorique() {
+  const modal = document.getElementById('modalHistorique');
+  modal.style.display = 'none';
+}
+
+// Fermer la modale en cliquant en dehors
+window.onclick = function(event) {
+  const modal = document.getElementById('modalHistorique');
+  if (event.target === modal) {
+    fermerHistorique();
+  }
+}
+
+// Fonctions API
+async function calculer() {
+  clearError();
+  document.getElementById('resultats').style.display = 'none';
+
+  const nom = document.getElementById('nom').value;
+  const temperature = parseFloat(document.getElementById('temperature').value);
+  const x1 = parseFloat(document.getElementById('x1').value);
+  const x2 = parseFloat(document.getElementById('x2').value);
+
+  if (isNaN(temperature) || isNaN(x1) || isNaN(x2)) {
+    showError("Veuillez renseigner tous les champs numériques.");
+    return;
+  }
+
+  if (Math.abs(x1 + x2 - 1) > 0.01) {
+    showError("x₁ + x₂ doit être égal à 1. Corrigez les fractions molaires.");
+    return;
+  }
+
+  if (x1 < 0 || x1 > 1 || x2 < 0 || x2 > 1) {
+    showError("Les fractions molaires doivent être comprises entre 0 et 1.");
+    return;
+  }
+
+  try {
+    const response = await fetch('/calculer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nom, temperature, x1, x2 })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showError(data.erreur || 'Erreur lors du calcul');
+      return;
+    }
+
+    // Affichage des résultats
+    document.getElementById('r-ant-benzene').innerHTML =
+      `Benzène → P₁* = ${data.antoine.p1sat_kpa.toFixed(3)} kPa (${data.antoine.p1sat_mmhg} mmHg)`;
+    document.getElementById('r-ant-toluene').innerHTML =
+      `Toluène → P₂* = ${data.antoine.p2sat_kpa.toFixed(3)} kPa (${data.antoine.p2sat_mmhg} mmHg)`;
+    document.getElementById('q1-result').innerHTML = `P = ${data.resultats.p_bulle.toFixed(3)} kPa`;
+    document.getElementById('q2-r1').innerHTML = `y₁ (Benzène) = ${data.resultats.y1.toFixed(4)}`;
+    document.getElementById('q2-r2').innerHTML = `y₂ (Toluène) = ${data.resultats.y2.toFixed(4)}`;
+    document.getElementById('q3-s').innerHTML =
+      `Σyᵢ = ${data.resultats.somme_yi.toFixed(4)} ${data.resultats.verif_ok ? '✓ OK' : '✗ Erreur'}`;
+
+    document.getElementById('resultats').style.display = 'block';
+    
+    showToast('Calcul enregistré avec succès !');
+    
+  } catch (error) {
+    showError('Erreur de connexion au serveur');
+    console.error(error);
+  }
+}
+
+async function chargerHistorique() {
+  const container = document.getElementById('historique-container');
+  container.innerHTML = '<div class="loading">Chargement...</div>';
+  
+  try {
+    const response = await fetch('/historique');
+    const data = await response.json();
+    
+    if (data.length === 0) {
+      container.innerHTML = '<div class="empty-history">📭 Aucun calcul enregistré</div>';
+      return;
+    }
+    
+    container.innerHTML = '<div class="historique-list">' + 
+      data.map(item => `
+        <div class="historique-item" data-id="${item.id}">
+          <div class="historique-header-item">
+            <div>
+              <span class="historique-nom">${escapeHtml(item.nom || 'Sans nom')}</span>
+              <div class="historique-date">${item.date}</div>
+            </div>
+            <button class="delete-btn" onclick="supprimerCalcul(${item.id})">🗑️ Supprimer</button>
+          </div>
+          <div class="historique-details">
+            <span>T = ${item.temperature}°C</span>
+            <span>x₁ = ${item.x1}</span>
+            <span>x₂ = ${item.x2}</span>
+            <span>P = ${item.p_bulle} kPa</span>
+            <span>y₁ = ${item.y1}</span>
+            <span>y₂ = ${item.y2}</span>
+          </div>
+        </div>
+      `).join('') + '</div>';
+      
+  } catch (error) {
+    container.innerHTML = '<div class="empty-history">❌ Erreur de chargement</div>';
+    console.error(error);
+  }
+}
+
+async function supprimerCalcul(id) {
+  if (!confirm('Supprimer ce calcul ?')) return;
+  
+  try {
+    const response = await fetch(`/historique/${id}`, { method: 'DELETE' });
+    const data = await response.json();
+    showToast(data.message);
+    chargerHistorique();
+  } catch (error) {
+    showToast('Erreur lors de la suppression', true);
+  }
+}
+
+async function supprimerToutHistorique() {
+  if (!confirm('⚠️ Supprimer TOUT l\'historique ? Cette action est irréversible.')) return;
+  
+  try {
+    const response = await fetch('/historique/tout', { method: 'DELETE' });
+    const data = await response.json();
+    showToast(data.message);
+    chargerHistorique();
+  } catch (error) {
+    showToast('Erreur lors de la suppression', true);
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Initialisation
+updateSum();
+</script>
+
+</body>
+</html>
