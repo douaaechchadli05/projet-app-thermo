@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Connexion</h2>
+        {% if error %}
+            <div class="error-bar" style="display: block;">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur ou email</label>
+                <input type="text" id="username" name="username" required placeholder="Votre identifiant ou email">
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required placeholder="Votre mot de passe">
+            </div>
+            <input type="hidden" name="mac" id="mac-input">
+            <button type="submit" class="btn-primary">Se connecter</button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem;">
+            Pas encore inscrit ? <a href="/register">Créer un compte</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('mac-input').value = localStorage.getItem('mac') || '00:00:00:00:00:00';
+</script>
+{% endblock %}

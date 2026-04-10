@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Thermodynamique</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>ThermoApp</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Accueil</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/calcul">Calcul</a>
+                    <a href="/historique">Historique</a>
+                    {% if current_user.role in ['admin', 'root'] %}
+                        <a href="/admin/dashboard">Admin</a>
+                        <a href="/heatmap">Heatmap</a>
+                    {% endif %}
+                    <a href="/logout">Déconnexion</a>
+                {% else %}
+                    <a href="/login">Connexion</a>
+                    <a href="/register">Inscription</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Obtenir l'adresse MAC via JS (simplifié)
+        function getMacAddress() {
+            // En réalité, impossible côté client, utiliser serveur
+            return '00:00:00:00:00:00';
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const mac = getMacAddress();
+            // Stocker pour login
+            localStorage.setItem('mac', mac);
+        });
+    </script>
+</body>
+</html>

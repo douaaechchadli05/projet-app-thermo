@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Calcul des pressions</h2>
+    {% if error %}
+        <div class="error-bar" style="display: block;">{{ error }}</div>
+    {% endif %}
+    <form method="POST" class="auth-card" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="temperature">Température (°C)</label>
+            <input type="number" id="temperature" name="temperature" step="0.1" required>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="x_toluene">Fraction molaire toluène</label>
+            <input type="number" id="x_toluene" name="x_toluene" step="0.01" min="0" max="1" required>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="x_benzene">Fraction molaire benzène</label>
+            <input type="number" id="x_benzene" name="x_benzene" step="0.01" min="0" max="1" required>
+        </div>
+        <div style="flex: 0 0 160px;">
+            <button type="submit" class="btn-primary" style="width: 100%;">Calculer</button>
+        </div>
+    </form>
+
+    {% if result %}
+    <div class="result-card" style="margin-top: 1.5rem;">
+        <h3>Résultats</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 220px;">
+                <p><strong>Température :</strong> {{ result.temperature }} °C</p>
+                <p><strong>x toluène :</strong> {{ result.x_toluene }}</p>
+                <p><strong>x benzène :</strong> {{ result.x_benzene }}</p>
+            </div>
+            <div style="flex: 1; min-width: 220px;">
+                <p><strong>P toluène sat :</strong> {{ result.p_toluene }} kPa</p>
+                <p><strong>P benzène sat :</strong> {{ result.p_benzene }} kPa</p>
+                <p><strong>P bulle :</strong> {{ result.p_bulle }} kPa</p>
+            </div>
+            <div style="flex: 1; min-width: 220px;">
+                <p><strong>y1 (toluène) :</strong> {{ result.y1 }}</p>
+                <p><strong>y2 (benzène) :</strong> {{ result.y2 }}</p>
+                <p><strong>Somme y :</strong> {{ result.somme_y }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <section style="margin-top: 2rem;">
+        <h3>Historique</h3>
+        {% if history %}
+            <div style="display: grid; gap: 1rem;">
+                {% for item in history %}
+                    <div class="result-card" style="padding: 1rem;">
+                        <p><strong>Date :</strong> {{ item.date.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+                        <p><strong>Température :</strong> {{ item.temperature }} °C</p>
+                        <p><strong>x1 :</strong> {{ item.x1 }}</p>
+                        <p><strong>x2 :</strong> {{ item.x2 }}</p>
+                        <p><strong>P bulle :</strong> {{ item.p_bulle }} kPa</p>
+                        <p><strong>Somme y :</strong> {{ item.somme_yi }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucun calcul historique pour le moment.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Tableau de bord administrateur</h2>
+    <section style="margin-top: 1rem;">
+        <h3>Utilisateurs</h3>
+        <div style="display:grid; gap: 0.8rem;">
+            {% for user in users %}
+                <div class="result-card" style="padding: 1rem;">
+                    <p><{% extends "base.html" %}
+
+{% block extra_styles %}
+<style>
+  :root {
+    --pink:   #D4537E;
+    --pink-l: #FBEAF0;
+    --pink-b: #F4C0D1;
+    --purple: #7F77DD;
+    --purp-l: #EEEDFE;
+    --purp-b: #AFA9EC;
+    --sky:    #378ADD;
+    --sky-l:  #E6F1FB;
+    --sky-b:  #B5D4F4;
+    --dark:   #3C3489;
+    --white:  #ffffff;
+  }
+
+  /* ── Layout ──────────────────────── */
+  .admin-shell {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FBEAF0 0%, #EEEDFE 50%, #E6F1FB 100%);
+  }
+
+  /* ── Sidebar ─────────────────────── */
+  .sidebar {
+    width: 220px;
+    background: var(--dark);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-radius: 0 12px 12px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .sidebar-brand {
+    padding: 1.5rem 1rem 1rem;
+    border-bottom: 0.5px solid rgba(255,255,255,0.15);
+  }
+  .sidebar-logo {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--pink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 500; color: #fff;
+    margin-bottom: 8px;
+  }
+  .sidebar-brand p  { color: #fff; font-size: 13px; font-weight: 500; }
+  .sidebar-brand span { color: rgba(255,255,255,0.45); font-size: 11px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.75rem 1rem;
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .nav-item:hover  { color: #fff; background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: #fff; border-left-color: var(--pink-b); background: rgba(255,255,255,0.09); }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 1rem;
+    border-top: 0.5px solid rgba(255,255,255,0.1);
+    margin-top: auto;
+  }
+  .sidebar-footer a {
+    color: rgba(255,255,255,0.45); font-size: 12px; text-decoration: none;
+  }
+  .sidebar-footer a:hover { color: var(--pink-b); }
+
+  /* ── Main content ────────────────── */
+  .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
+
+  /* ── Top bar ─────────────────────── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--white);
+    border-radius: 12px;
+    border: 0.5px solid var(--pink-b);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .topbar h1 { font-size: 16px; font-weight: 500; color: var(--dark); }
+  .badge-admin {
+    background: var(--purp-l); color: var(--dark);
+    font-size: 11px; padding: 4px 12px; border-radius: 99px;
+    font-weight: 500; border: 0.5px solid var(--purp-b);
+  }
+
+  /* ── Stats cards ─────────────────── */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+  .stat-card {
+    border-radius: 12px; padding: 1rem 1.25rem;
+    border: 0.5px solid transparent;
+  }
+  .stat-card.pink { background: var(--pink-l); border-color: var(--pink-b); }
+  .stat-card.purp { background: var(--purp-l); border-color: var(--purp-b); }
+  .stat-card.sky  { background: var(--sky-l);  border-color: var(--sky-b);  }
+  .stat-label { font-size: 11px; color: var(--dark); opacity: 0.65; margin-bottom: 4px; }
+  .stat-val   { font-size: 28px; font-weight: 500; }
+  .stat-card.pink .stat-val { color: var(--pink); }
+  .stat-card.purp .stat-val { color: var(--purple); }
+  .stat-card.sky  .stat-val { color: var(--sky); }
+
+  /* ── Section cards ───────────────── */
+  .section {
+    background: var(--white);
+    border-radius: 12px;
+    border: 0.5px solid var(--purp-b);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-title {
+    font-size: 13px; font-weight: 500; color: var(--dark);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ''; display: inline-block;
+    width: 4px; height: 16px; border-radius: 2px;
+  }
+  .section-title.t-pink::before   { background: var(--pink);   }
+  .section-title.t-purple::before { background: var(--purple); }
+  .section-title.t-sky::before    { background: var(--sky);    }
+
+  /* ── Users table ─────────────────── */
+  .users-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .users-table thead tr { background: var(--purp-l); }
+  .users-table th {
+    padding: 8px 10px; text-align: left;
+    font-weight: 500; color: var(--dark); font-size: 11px;
+  }
+  .users-table td {
+    padding: 9px 10px; color: var(--dark);
+    border-bottom: 0.5px solid var(--purp-l);
+  }
+  .users-table tr:last-child td { border-bottom: none; }
+  .users-table tbody tr:hover td { background: var(--sky-l); }
+
+  /* ── Pills ───────────────────────── */
+  .pill {
+    display: inline-block; padding: 2px 9px;
+    border-radius: 99px; font-size: 10px; font-weight: 500;
+  }
+  .pill.verified   { background: var(--sky-l);  color: var(--sky);    border: 0.5px solid var(--sky-b);  }
+  .pill.unverified { background: var(--pink-l); color: var(--pink);   border: 0.5px solid var(--pink-b); }
+  .pill.role-admin { background: var(--purp-l); color: var(--purple); border: 0.5px solid var(--purp-b); }
+  .pill.role-user  { background: var(--sky-l);  color: var(--sky);    border: 0.5px solid var(--sky-b);  }
+
+  /* ── Log cards ───────────────────── */
+  .log-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .log-card {
+    background: var(--sky-l); border-radius: 10px;
+    border: 0.5px solid var(--sky-b); padding: 0.9rem;
+  }
+  .log-user {
+    font-size: 12px; font-weight: 500; color: var(--purple);
+    margin-bottom: 8px; padding-bottom: 6px;
+    border-bottom: 0.5px solid var(--sky-b);
+  }
+  .log-row {
+    display: flex; justify-content: space-between;
+    font-size: 11px; margin-bottom: 4px;
+  }
+  .log-key { color: var(--dark); opacity: 0.6; }
+  .log-val {
+    color: var(--dark); font-weight: 500;
+    max-width: 58%; text-align: right;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .no-logs {
+    text-align: center; color: var(--dark); opacity: 0.5;
+    font-size: 13px; padding: 1rem 0;
+  }
+
+  /* ── Heatmap container ───────────── */
+  .heatmap-wrap {
+    border-radius: 10px; overflow: hidden;
+    border: 0.5px solid var(--pink-b);
+    min-height: 400px;
+  }
+  .heatmap-wrap iframe {
+    width: 100%; height: 420px; border: none; display: block;
+  }
+
+  /* ── Action buttons ──────────────── */
+  .btn-block {
+    background: var(--pink-l); color: var(--pink);
+    border: 0.5px solid var(--pink-b);
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 11px; cursor: pointer;
+  }
+  .btn-block:hover { background: var(--pink); color: #fff; }
+
+  /* ── Responsive ──────────────────── */
+  @media (max-width: 768px) {
+    .admin-shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; border-radius: 0; position: static; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .log-grid  { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+
+  <!-- ════ SIDEBAR ════ -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">A</div>
+      <p>Thermo Admin</p>
+      <span>Espace administrateur</span>
+    </div>
+
+    <div style="padding: 1rem 0; flex:1;">
+      <a href="{{ url_for('admin.dashboard') }}" class="nav-item active">
+        <div class="nav-dot" style="background:var(--pink);"></div> Dashboard
+      </a>
+      <a href="{{ url_for('admin.users') }}" class="nav-item">
+        <div class="nav-dot" style="background:var(--purple);"></div> Utilisateurs
+      </a>
+      <a href="{{ url_for('admin.logs') }}" class="nav-item">
+        <div class="nav-dot" style="background:var(--sky);"></div> Journaux IP/MAC
+      </a>
+      <a href="{{ url_for('admin.historique') }}" class="nav-item">
+        <div class="nav-dot" style="background:var(--pink-b);"></div> Historique calculs
+      </a>
+      <a href="{{ url_for('admin.heatmap') }}" class="nav-item">
+        <div class="nav-dot" style="background:var(--purp-b);"></div> Heatmap mondiale
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('auth.logout') }}">Déconnexion</a>
+    </div>
+  </nav>
+
+  <!-- ════ MAIN ════ -->
+  <main class="admin-main">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <h1>Tableau de bord administrateur</h1>
+      <span class="badge-admin">Admin : {{ current_user.username }}</span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card pink">
+        <div class="stat-label">Utilisateurs totaux</div>
+        <div class="stat-val">{{ users | length }}</div>
+      </div>
+      <div class="stat-card purp">
+        <div class="stat-label">Connexions enregistrées</div>
+        <div class="stat-val">{{ logs | length }}</div>
+      </div>
+      <div class="stat-card sky">
+        <div class="stat-label">Calculs effectués</div>
+        <div class="stat-val">{{ calculs_count | default(0) }}</div>
+      </div>
+    </div>
+
+    <!-- ── Section : Utilisateurs ── -->
+    <div class="section">
+      <div class="section-title t-pink">Utilisateurs inscrits</div>
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Vérifié</th>
+            <th>Inscription</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="pill {{ 'role-admin' if user.role == 'admin' else 'role-user' }}">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <span class="pill {{ 'verified' if user.is_verified else 'unverified' }}">
+                {{ 'Oui' if user.is_verified else 'Non' }}
+              </span>
+            </td>
+            <td>{{ user.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.block_user', user_id=user.id) }}" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-block">Bloquer</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Section : Journaux IP/MAC ── -->
+    <div class="section">
+      <div class="section-title t-sky">Journaux de connexion récents</div>
+      {% if logs %}
+        <div class="log-grid">
+          {% for log in logs %}
+          <div class="log-card">
+            <div class="log-user">{{ log.utilisateur.username if log.utilisateur else 'Inconnu' }}</div>
+            <div class="log-row">
+              <span class="log-key">IP</span>
+              <span class="log-val">{{ log.ip_address or 'N/A' }}</span>
+            </div>
+            <div class="log-row">
+              <span class="log-key">MAC</span>
+              <span class="log-val">{{ log.mac_address or 'N/A' }}</span>
+            </div>
+            <div class="log-row">
+              <span class="log-key">Date auth</span>
+              <span class="log-val">{{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+            </div>
+            <div class="log-row">
+              <span class="log-key">Pays</span>
+              <span class="log-val">{{ log.country or 'N/A' }}</span>
+            </div>
+            <div class="log-row">
+              <span class="log-key">Ville</span>
+              <span class="log-val">{{ log.city or 'N/A' }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="no-logs">Aucun journal de connexion disponible.</p>
+      {% endif %}
+    </div>
+
+    <!-- ── Section : Heatmap ── -->
+    <div class="section">
+      <div class="section-title t-purple">Heatmap mondiale des connexions</div>
+      <div class="heatmap-wrap">
+        {% if heatmap_html %}
+          {{ heatmap_html | safe }}
+        {% else %}
+          <div style="height:200px; display:flex; align-items:center; justify-content:center; color:var(--purple); font-size:13px;">
+            Aucune donnée de géolocalisation disponible pour le moment.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}strong>ID :</strong> {{ user.id }}</p>
+                    <p><strong>Nom :</strong> {{ user.username }}</p>
+                    <p><strong>Email :</strong> {{ user.email }}</p>
+                    <p><strong>Rôle :</strong> {{ user.role }}</p>
+                    <p><strong>Vérifié :</strong> {{ 'Oui' if user.is_verified else 'Non' }}</p>
+                    <p><strong>Inscription :</strong> {{ user.date_inscription.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section style="margin-top: 2rem;">
+        <h3>Journaux de connexion récents</h3>
+        {% if logs %}
+            <div style="display:grid; gap: 0.8rem;">
+                {% for log in logs %}
+                    <div class="result-card" style="padding: 1rem;">
+                        <p><strong>Utilisateur :</strong> {{ log.utilisateur.username }}</p>
+                        <p><strong>IP :</strong> {{ log.ip_address }}</p>
+                        <p><strong>MAC :</strong> {{ log.mac_address }}</p>
+                        <p><strong>Date :</strong> {{ log.date_auth.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+                        <p><strong>Pays :</strong> {{ log.country or 'N/A' }}</p>
+                        <p><strong>Ville :</strong> {{ log.city or 'N/A' }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucun journal de connexion disponible.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
