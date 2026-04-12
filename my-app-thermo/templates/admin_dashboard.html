@@ -1,408 +1,755 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord Admin - Thermo</title>
+    <!-- Leaflet CSS pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.css" />
+    <style>
+        :root {
+            --pink:   #ff9ec7;
+            --pink-l: #ffe0f0;
+            --pink-b: #ffb3d9;
+            --purple: #e8b4ff;
+            --purp-l: #f0e6ff;
+            --purp-b: #f0c6ff;
+            --sky:    #87ceeb;
+            --sky-l:  #e6f3ff;
+            --dark:   #2a1a3a;
+            --white:  #ffffff;
+        }
 
-{% block content %}
-<div class="container">
-    <h2>Tableau de bord administrateur</h2>
-    <section style="margin-top: 1rem;">
-        <h3>Utilisateurs</h3>
-        <div style="display:grid; gap: 0.8rem;">
-            {% for user in users %}
-                <div class="result-card" style="padding: 1rem;">
-                    <p><{% extends "base.html" %}
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ffe0f0 0%, #f0e6ff 50%, #e6f3ff 100%);
+        }
 
-{% block extra_styles %}
-<style>
-  :root {
-    --pink:   #D4537E;
-    --pink-l: #FBEAF0;
-    --pink-b: #F4C0D1;
-    --purple: #7F77DD;
-    --purp-l: #EEEDFE;
-    --purp-b: #AFA9EC;
-    --sky:    #378ADD;
-    --sky-l:  #E6F1FB;
-    --sky-b:  #B5D4F4;
-    --dark:   #3C3489;
-    --white:  #ffffff;
-  }
+        .admin-shell {
+            display: flex;
+            min-height: 100vh;
+        }
 
-  /* ── Layout ──────────────────────── */
-  .admin-shell {
-    display: flex;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #FBEAF0 0%, #EEEDFE 50%, #E6F1FB 100%);
-  }
+        .sidebar {
+            width: 220px;
+            background: var(--dark);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            border-radius: 0 12px 12px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
 
-  /* ── Sidebar ─────────────────────── */
-  .sidebar {
-    width: 220px;
-    background: var(--dark);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    border-radius: 0 12px 12px 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-  }
-  .sidebar-brand {
-    padding: 1.5rem 1rem 1rem;
-    border-bottom: 0.5px solid rgba(255,255,255,0.15);
-  }
-  .sidebar-logo {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: var(--pink);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 500; color: #fff;
-    margin-bottom: 8px;
-  }
-  .sidebar-brand p  { color: #fff; font-size: 13px; font-weight: 500; }
-  .sidebar-brand span { color: rgba(255,255,255,0.45); font-size: 11px; }
+        .sidebar-brand {
+            padding: 1.5rem 1rem 1rem;
+            border-bottom: 0.5px solid rgba(255,255,255,0.15);
+        }
 
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0.75rem 1rem;
-    color: rgba(255,255,255,0.65);
-    font-size: 13px;
-    border-left: 3px solid transparent;
-    text-decoration: none;
-    transition: all 0.15s;
-  }
-  .nav-item:hover  { color: #fff; background: rgba(255,255,255,0.05); }
-  .nav-item.active { color: #fff; border-left-color: var(--pink-b); background: rgba(255,255,255,0.09); }
-  .nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .sidebar-logo {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: var(--pink);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 500; color: #fff;
+            margin-bottom: 8px;
+        }
 
-  .sidebar-footer {
-    padding: 1rem;
-    border-top: 0.5px solid rgba(255,255,255,0.1);
-    margin-top: auto;
-  }
-  .sidebar-footer a {
-    color: rgba(255,255,255,0.45); font-size: 12px; text-decoration: none;
-  }
-  .sidebar-footer a:hover { color: var(--pink-b); }
+        .sidebar-brand p  { color: #fff; font-size: 13px; font-weight: 500; }
+        .sidebar-brand span { color: rgba(255,255,255,0.45); font-size: 11px; }
 
-  /* ── Main content ────────────────── */
-  .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.75rem 1rem;
+            color: rgba(255,255,255,0.65);
+            font-size: 13px;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
 
-  /* ── Top bar ─────────────────────── */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--white);
-    border-radius: 12px;
-    border: 0.5px solid var(--pink-b);
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1.25rem;
-  }
-  .topbar h1 { font-size: 16px; font-weight: 500; color: var(--dark); }
-  .badge-admin {
-    background: var(--purp-l); color: var(--dark);
-    font-size: 11px; padding: 4px 12px; border-radius: 99px;
-    font-weight: 500; border: 0.5px solid var(--purp-b);
-  }
+        .nav-item:hover  { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-item.active { color: #fff; border-left-color: var(--pink-b); background: rgba(255,255,255,0.09); }
+        .nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ── Stats cards ─────────────────── */
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.25rem; }
-  .stat-card {
-    border-radius: 12px; padding: 1rem 1.25rem;
-    border: 0.5px solid transparent;
-  }
-  .stat-card.pink { background: var(--pink-l); border-color: var(--pink-b); }
-  .stat-card.purp { background: var(--purp-l); border-color: var(--purp-b); }
-  .stat-card.sky  { background: var(--sky-l);  border-color: var(--sky-b);  }
-  .stat-label { font-size: 11px; color: var(--dark); opacity: 0.65; margin-bottom: 4px; }
-  .stat-val   { font-size: 28px; font-weight: 500; }
-  .stat-card.pink .stat-val { color: var(--pink); }
-  .stat-card.purp .stat-val { color: var(--purple); }
-  .stat-card.sky  .stat-val { color: var(--sky); }
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+        }
 
-  /* ── Section cards ───────────────── */
-  .section {
-    background: var(--white);
-    border-radius: 12px;
-    border: 0.5px solid var(--purp-b);
-    padding: 1.25rem;
-    margin-bottom: 1.25rem;
-  }
-  .section-title {
-    font-size: 13px; font-weight: 500; color: var(--dark);
-    margin-bottom: 1rem;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-title::before {
-    content: ''; display: inline-block;
-    width: 4px; height: 16px; border-radius: 2px;
-  }
-  .section-title.t-pink::before   { background: var(--pink);   }
-  .section-title.t-purple::before { background: var(--purple); }
-  .section-title.t-sky::before    { background: var(--sky);    }
+        .sidebar-footer a {
+            color: rgba(255,255,255,0.45); font-size: 12px; text-decoration: none;
+        }
 
-  /* ── Users table ─────────────────── */
-  .users-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .users-table thead tr { background: var(--purp-l); }
-  .users-table th {
-    padding: 8px 10px; text-align: left;
-    font-weight: 500; color: var(--dark); font-size: 11px;
-  }
-  .users-table td {
-    padding: 9px 10px; color: var(--dark);
-    border-bottom: 0.5px solid var(--purp-l);
-  }
-  .users-table tr:last-child td { border-bottom: none; }
-  .users-table tbody tr:hover td { background: var(--sky-l); }
+        .sidebar-footer a:hover { color: var(--pink-b); }
 
-  /* ── Pills ───────────────────────── */
-  .pill {
-    display: inline-block; padding: 2px 9px;
-    border-radius: 99px; font-size: 10px; font-weight: 500;
-  }
-  .pill.verified   { background: var(--sky-l);  color: var(--sky);    border: 0.5px solid var(--sky-b);  }
-  .pill.unverified { background: var(--pink-l); color: var(--pink);   border: 0.5px solid var(--pink-b); }
-  .pill.role-admin { background: var(--purp-l); color: var(--purple); border: 0.5px solid var(--purp-b); }
-  .pill.role-user  { background: var(--sky-l);  color: var(--sky);    border: 0.5px solid var(--sky-b);  }
+        .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
 
-  /* ── Log cards ───────────────────── */
-  .log-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .log-card {
-    background: var(--sky-l); border-radius: 10px;
-    border: 0.5px solid var(--sky-b); padding: 0.9rem;
-  }
-  .log-user {
-    font-size: 12px; font-weight: 500; color: var(--purple);
-    margin-bottom: 8px; padding-bottom: 6px;
-    border-bottom: 0.5px solid var(--sky-b);
-  }
-  .log-row {
-    display: flex; justify-content: space-between;
-    font-size: 11px; margin-bottom: 4px;
-  }
-  .log-key { color: var(--dark); opacity: 0.6; }
-  .log-val {
-    color: var(--dark); font-weight: 500;
-    max-width: 58%; text-align: right;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .no-logs {
-    text-align: center; color: var(--dark); opacity: 0.5;
-    font-size: 13px; padding: 1rem 0;
-  }
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--white);
+            border-radius: 12px;
+            border: 0.5px solid var(--pink-b);
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
 
-  /* ── Heatmap container ───────────── */
-  .heatmap-wrap {
-    border-radius: 10px; overflow: hidden;
-    border: 0.5px solid var(--pink-b);
-    min-height: 400px;
-  }
-  .heatmap-wrap iframe {
-    width: 100%; height: 420px; border: none; display: block;
-  }
+        .topbar h1 { font-size: 16px; font-weight: 500; color: var(--dark); }
+        .badge-admin {
+            background: var(--purp-l); color: var(--dark);
+            font-size: 11px; padding: 4px 12px; border-radius: 99px;
+            font-weight: 500; border: 0.5px solid var(--purp-b);
+        }
 
-  /* ── Action buttons ──────────────── */
-  .btn-block {
-    background: var(--pink-l); color: var(--pink);
-    border: 0.5px solid var(--pink-b);
-    padding: 4px 10px; border-radius: 6px;
-    font-size: 11px; cursor: pointer;
-  }
-  .btn-block:hover { background: var(--pink); color: #fff; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+        .stat-card {
+            border-radius: 12px; padding: 1rem 1.25rem;
+            border: 0.5px solid transparent;
+        }
+        .stat-card.pink { background: var(--pink-l); border-color: var(--pink-b); }
+        .stat-card.purp { background: var(--purp-l); border-color: var(--purp-b); }
+        .stat-card.sky  { background: var(--sky-l);  border-color: var(--sky-b);  }
+        .stat-label { font-size: 11px; color: var(--dark); opacity: 0.65; margin-bottom: 4px; }
+        .stat-val   { font-size: 28px; font-weight: 500; }
+        .stat-card.pink .stat-val { color: var(--pink); }
+        .stat-card.purp .stat-val { color: var(--purple); }
+        .stat-card.sky  .stat-val { color: var(--sky); }
 
-  /* ── Responsive ──────────────────── */
-  @media (max-width: 768px) {
-    .admin-shell { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; border-radius: 0; position: static; }
-    .stats-row { grid-template-columns: 1fr 1fr; }
-    .log-grid  { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 480px) {
-    .stats-row { grid-template-columns: 1fr; }
-  }
-</style>
-{% endblock %}
+        .section {
+            background: var(--white);
+            border-radius: 12px;
+            border: 0.5px solid var(--purp-b);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
 
-{% block content %}
-<div class="admin-shell">
+        .section-title {
+            font-size: 13px; font-weight: 500; color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 8px;
+        }
 
-  <!-- ════ SIDEBAR ════ -->
-  <nav class="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-logo">A</div>
-      <p>Thermo Admin</p>
-      <span>Espace administrateur</span>
-    </div>
+        .section-title::before {
+            content: ''; display: inline-block;
+            width: 4px; height: 16px; border-radius: 2px;
+        }
 
-    <div style="padding: 1rem 0; flex:1;">
-      <a href="{{ url_for('admin.dashboard') }}" class="nav-item active">
-        <div class="nav-dot" style="background:var(--pink);"></div> Dashboard
-      </a>
-      <a href="{{ url_for('admin.users') }}" class="nav-item">
-        <div class="nav-dot" style="background:var(--purple);"></div> Utilisateurs
-      </a>
-      <a href="{{ url_for('admin.logs') }}" class="nav-item">
-        <div class="nav-dot" style="background:var(--sky);"></div> Journaux IP/MAC
-      </a>
-      <a href="{{ url_for('admin.historique') }}" class="nav-item">
-        <div class="nav-dot" style="background:var(--pink-b);"></div> Historique calculs
-      </a>
-      <a href="{{ url_for('admin.heatmap') }}" class="nav-item">
-        <div class="nav-dot" style="background:var(--purp-b);"></div> Heatmap mondiale
-      </a>
-    </div>
+        .section-title.t-pink::before   { background: var(--pink);   }
+        .section-title.t-purple::before { background: var(--purple); }
+        .section-title.t-sky::before    { background: var(--sky);    }
 
-    <div class="sidebar-footer">
-      <a href="{{ url_for('auth.logout') }}">Déconnexion</a>
-    </div>
-  </nav>
+        .users-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .users-table thead tr { background: var(--purp-l); }
+        .users-table th {
+            padding: 8px 10px; text-align: left;
+            font-weight: 500; color: var(--dark); font-size: 11px;
+        }
+        .users-table td {
+            padding: 9px 10px; color: var(--dark);
+            border-bottom: 0.5px solid var(--purp-l);
+        }
+        .users-table tr:last-child td { border-bottom: none; }
+        .users-table tbody tr:hover td { background: var(--sky-l); }
 
-  <!-- ════ MAIN ════ -->
-  <main class="admin-main">
+        .pill {
+            display: inline-block; padding: 2px 9px;
+            border-radius: 99px; font-size: 10px; font-weight: 500;
+        }
 
-    <!-- Top bar -->
-    <div class="topbar">
-      <h1>Tableau de bord administrateur</h1>
-      <span class="badge-admin">Admin : {{ current_user.username }}</span>
-    </div>
+        .pill.verified   { background: var(--sky-l);  color: var(--sky);    border: 0.5px solid var(--sky-b);  }
+        .pill.unverified { background: var(--pink-l); color: var(--pink);   border: 0.5px solid var(--pink-b); }
+        .pill.role-admin { background: var(--purp-l); color: var(--purple); border: 0.5px solid var(--purp-b); }
+        .pill.role-user  { background: var(--sky-l);  color: var(--sky);    border: 0.5px solid var(--sky-b);  }
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card pink">
-        <div class="stat-label">Utilisateurs totaux</div>
-        <div class="stat-val">{{ users | length }}</div>
-      </div>
-      <div class="stat-card purp">
-        <div class="stat-label">Connexions enregistrées</div>
-        <div class="stat-val">{{ logs | length }}</div>
-      </div>
-      <div class="stat-card sky">
-        <div class="stat-label">Calculs effectués</div>
-        <div class="stat-val">{{ calculs_count | default(0) }}</div>
-      </div>
-    </div>
+        .log-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .log-card {
+            background: var(--sky-l); border-radius: 10px;
+            border: 0.5px solid var(--sky-b); padding: 0.9rem;
+        }
 
-    <!-- ── Section : Utilisateurs ── -->
-    <div class="section">
-      <div class="section-title t-pink">Utilisateurs inscrits</div>
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Rôle</th>
-            <th>Vérifié</th>
-            <th>Inscription</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for user in users %}
-          <tr>
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>
-              <span class="pill {{ 'role-admin' if user.role == 'admin' else 'role-user' }}">
-                {{ user.role }}
-              </span>
-            </td>
-            <td>
-              <span class="pill {{ 'verified' if user.is_verified else 'unverified' }}">
-                {{ 'Oui' if user.is_verified else 'Non' }}
-              </span>
-            </td>
-            <td>{{ user.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-            <td>
-              <form method="POST" action="{{ url_for('admin.block_user', user_id=user.id) }}" style="display:inline;">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn-block">Bloquer</button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+        .log-user {
+            font-size: 12px; font-weight: 500; color: var(--purple);
+            margin-bottom: 8px; padding-bottom: 6px;
+            border-bottom: 0.5px solid var(--sky-b);
+        }
 
-    <!-- ── Section : Journaux IP/MAC ── -->
-    <div class="section">
-      <div class="section-title t-sky">Journaux de connexion récents</div>
-      {% if logs %}
-        <div class="log-grid">
-          {% for log in logs %}
-          <div class="log-card">
-            <div class="log-user">{{ log.utilisateur.username if log.utilisateur else 'Inconnu' }}</div>
-            <div class="log-row">
-              <span class="log-key">IP</span>
-              <span class="log-val">{{ log.ip_address or 'N/A' }}</span>
+        .log-row {
+            display: flex; justify-content: space-between;
+            font-size: 11px; margin-bottom: 4px;
+        }
+
+        .log-key { color: var(--dark); opacity: 0.6; }
+        .log-val {
+            color: var(--dark); font-weight: 500;
+            max-width: 58%; text-align: right;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        .no-logs {
+            text-align: center; color: var(--dark); opacity: 0.5;
+            font-size: 13px; padding: 1rem 0;
+        }
+
+        .heatmap-wrap {
+            border-radius: 10px; overflow: hidden;
+            border: 0.5px solid var(--pink-b);
+            min-height: 400px;
+        }
+
+        .btn-logout {
+            background: var(--pink-l); color: var(--pink);
+            border: 0.5px solid var(--pink-b);
+            padding: 6px 16px; border-radius: 6px;
+            font-size: 12px; cursor: pointer; text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-logout:hover { background: var(--pink); color: #fff; }
+
+        /* Styles pour la Heatmap */
+        .heatmap-container {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .heatmap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .heatmap-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        #worldMap {
+            height: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .user-info-panel {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .user-item:hover {
+            background: var(--sky-l);
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .user-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .user-location {
+            background: var(--purple);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-shell { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; border-radius: 0; position: static; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .log-grid  { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-shell">
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">A</div>
+                <p>Thermo Admin</p>
+                <span>Espace administrateur</span>
             </div>
-            <div class="log-row">
-              <span class="log-key">MAC</span>
-              <span class="log-val">{{ log.mac_address or 'N/A' }}</span>
-            </div>
-            <div class="log-row">
-              <span class="log-key">Date auth</span>
-              <span class="log-val">{{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span>
-            </div>
-            <div class="log-row">
-              <span class="log-key">Pays</span>
-              <span class="log-val">{{ log.country or 'N/A' }}</span>
-            </div>
-            <div class="log-row">
-              <span class="log-key">Ville</span>
-              <span class="log-val">{{ log.city or 'N/A' }}</span>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="no-logs">Aucun journal de connexion disponible.</p>
-      {% endif %}
-    </div>
 
-    <!-- ── Section : Heatmap ── -->
-    <div class="section">
-      <div class="section-title t-purple">Heatmap mondiale des connexions</div>
-      <div class="heatmap-wrap">
-        {% if heatmap_html %}
-          {{ heatmap_html | safe }}
-        {% else %}
-          <div style="height:200px; display:flex; align-items:center; justify-content:center; color:var(--purple); font-size:13px;">
-            Aucune donnée de géolocalisation disponible pour le moment.
-          </div>
-        {% endif %}
-      </div>
-    </div>
+            <div style="padding: 1rem 0; flex:1;">
+                <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+                    <div class="nav-dot" style="background:var(--pink);"></div> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('sessions')">
+                    <div class="nav-dot" style="background:var(--purple);"></div> Sessions
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('heatmap')">
+                    <div class="nav-dot" style="background:var(--sky);"></div> Heatmap
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('activities')">
+                    <div class="nav-dot" style="background:var(--pink-b);"></div> Activités
+                </a>
+            </div>
 
-  </main>
-</div>
-{% endblock %}strong>ID :</strong> {{ user.id }}</p>
-                    <p><strong>Nom :</strong> {{ user.username }}</p>
-                    <p><strong>Email :</strong> {{ user.email }}</p>
-                    <p><strong>Rôle :</strong> {{ user.role }}</p>
-                    <p><strong>Vérifié :</strong> {{ 'Oui' if user.is_verified else 'Non' }}</p>
-                    <p><strong>Inscription :</strong> {{ user.date_inscription.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+            <div class="sidebar-footer">
+                <a href="/logout" class="btn-logout">Déconnexion</a>
+            </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="admin-main">
+            <!-- Top bar -->
+            <div class="topbar">
+                <h1>Tableau de bord administrateur</h1>
+                <span class="badge-admin">Admin : <span id="current-user">Admin</span></span>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card pink">
+                    <div class="stat-label">Utilisateurs totaux</div>
+                    <div class="stat-val" id="users-count">0</div>
                 </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section style="margin-top: 2rem;">
-        <h3>Journaux de connexion récents</h3>
-        {% if logs %}
-            <div style="display:grid; gap: 0.8rem;">
-                {% for log in logs %}
-                    <div class="result-card" style="padding: 1rem;">
-                        <p><strong>Utilisateur :</strong> {{ log.utilisateur.username }}</p>
-                        <p><strong>IP :</strong> {{ log.ip_address }}</p>
-                        <p><strong>MAC :</strong> {{ log.mac_address }}</p>
-                        <p><strong>Date :</strong> {{ log.date_auth.strftime('%d/%m/%Y %H:%M:%S') }}</p>
-                        <p><strong>Pays :</strong> {{ log.country or 'N/A' }}</p>
-                        <p><strong>Ville :</strong> {{ log.city or 'N/A' }}</p>
-                    </div>
-                {% endfor %}
+                <div class="stat-card purp">
+                    <div class="stat-label">Sessions enregistrées</div>
+                    <div class="stat-val" id="sessions-count">0</div>
+                </div>
+                <div class="stat-card sky">
+                    <div class="stat-label">Activités totales</div>
+                    <div class="stat-val" id="activities-count">0</div>
+                </div>
             </div>
-        {% else %}
-            <p>Aucun journal de connexion disponible.</p>
-        {% endif %}
-    </section>
-</div>
-{% endblock %}
+
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section">
+                <div class="section-title t-pink">Vue d'ensemble</div>
+                <p style="color: var(--dark); font-size: 13px; line-height: 1.5;">
+                    Bienvenue dans le tableau de bord administrateur. Utilisez le menu de gauche pour naviguer 
+                    entre les différentes sections de monitoring des utilisateurs.
+                </p>
+            </div>
+
+            <!-- Sessions Section -->
+            <div id="sessions-section" class="section" style="display: none;">
+                <div class="section-title t-purple">Sessions de connexion récentes</div>
+                <div id="sessions-container">
+                    <p class="no-logs">Chargement des sessions...</p>
+                </div>
+            </div>
+
+            <!-- Heatmap Section -->
+            <div id="heatmap-section" class="section" style="display: none;">
+                <div class="section-title t-sky">Heatmap mondiale des utilisateurs</div>
+                
+                <div class="heatmap-container">
+                    <div class="heatmap-header">
+                        <h3 class="heatmap-title">
+                            <i class="fas fa-globe-americas me-2"></i>
+                            Carte mondiale des connexions
+                        </h3>
+                        <button class="btn-logout" onclick="refreshHeatmap()">
+                            <i class="fas fa-sync me-1"></i>Actualiser
+                        </button>
+                    </div>
+                    
+                    <!-- Carte mondiale -->
+                    <div id="worldMap"></div>
+                </div>
+                
+                <!-- Panneau d'informations des utilisateurs -->
+                <div class="user-info-panel">
+                    <h4 style="margin-bottom: 1rem; color: var(--dark);">
+                        <i class="fas fa-users me-2"></i>
+                        Détails des utilisateurs connectés
+                    </h4>
+                    <div id="userList" class="user-list">
+                        <p class="no-logs">Chargement des utilisateurs...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activities Section -->
+            <div id="activities-section" class="section" style="display: none;">
+                <div class="section-title t-pink">Activités des utilisateurs</div>
+                <div id="activities-container">
+                    <p class="no-logs">Chargement des activités...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('[id$="-section"]').forEach(el => el.style.display = 'none');
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(section + '-section').style.display = 'block';
+            
+            // Add active class to clicked nav item
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Load data for the section
+            loadSectionData(section);
+        }
+
+        function loadSectionData(section) {
+            switch(section) {
+                case 'sessions':
+                    loadSessions();
+                    break;
+                case 'heatmap':
+                    loadHeatmap();
+                    break;
+                case 'activities':
+                    loadActivities();
+                    break;
+            }
+        }
+
+        async function loadSessions() {
+            try {
+                const response = await fetch('/admin/sessions');
+                const sessions = await response.json();
+                
+                const container = document.getElementById('sessions-container');
+                
+                if (sessions.length === 0) {
+                    container.innerHTML = '<p class="no-logs">Aucune session enregistrée.</p>';
+                    return;
+                }
+                
+                const html = sessions.slice(0, 10).map(session => `
+                    <div class="log-card">
+                        <div class="log-user">${session.username}</div>
+                        <div class="log-row">
+                            <span class="log-key">IP</span>
+                            <span class="log-val">${session.ip_address || 'N/A'}</span>
+                        </div>
+                        <div class="log-row">
+                            <span class="log-key">MAC</span>
+                            <span class="log-val">${session.mac_address || 'N/A'}</span>
+                        </div>
+                        <div class="log-row">
+                            <span class="log-key">Connexion</span>
+                            <span class="log-val">${new Date(session.login_time).toLocaleString('fr-FR')}</span>
+                        </div>
+                        <div class="log-row">
+                            <span class="log-key">Durée</span>
+                            <span class="log-val">${session.session_duration ? Math.round(session.session_duration) + 's' : 'En cours'}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = '<div class="log-grid">' + html + '</div>';
+                document.getElementById('sessions-count').textContent = sessions.length;
+                
+            } catch (error) {
+                document.getElementById('sessions-container').innerHTML = 
+                    '<p class="no-logs">Erreur lors du chargement des sessions.</p>';
+            }
+        }
+
+        async function loadHeatmap() {
+            try {
+                // Charger uniquement les sessions
+                const response = await fetch('/admin/sessions');
+                const sessions = await response.json();
+                
+                // Initialiser la carte avec frontières politiques
+                if (!window.heatmapMap) {
+                    window.heatmapMap = L.map('worldMap').setView([30, 0], 2);
+                    
+                    // Utiliser OpenStreetMap avec frontières politiques
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(window.heatmapMap);
+                }
+                
+                // Vider les marqueurs existants
+                if (window.userMarkers) {
+                    window.userMarkers.forEach(marker => window.heatmapMap.removeLayer(marker));
+                }
+                window.userMarkers = [];
+                
+                // Ajouter les marqueurs pour chaque utilisateur
+                const userList = document.getElementById('userList');
+                let userHtml = '';
+                
+                if (sessions.length === 0) {
+                    userList.innerHTML = '<p class="no-logs">Aucun utilisateur connecté.</p>';
+                    return;
+                }
+                
+                // Ajouter des points rouges pour chaque utilisateur avec géolocalisation réelle
+                for (const session of sessions) {
+                    const coords = await geolocateIP(session.ip_address);
+                    
+                    // Créer un simple point rouge
+                    const redDotIcon = L.divIcon({
+                        html: '<div style="background: #FF0000; border-radius: 50%; width: 12px; height: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+                        iconSize: [12, 12],
+                        className: 'red-dot-marker'
+                    });
+                    
+                    const marker = L.marker(coords, {icon: redDotIcon}).addTo(window.heatmapMap);
+                    marker.bindPopup(`
+                        <strong>${session.username}</strong><br>
+                        IP: ${session.ip_address}<br>
+                        MAC: ${session.mac_address}<br>
+                        Connexion: ${new Date(session.login_time).toLocaleString('fr-FR')}
+                    `);
+                    window.userMarkers.push(marker);
+                    
+                    // Ajouter à la liste des utilisateurs
+                    userHtml += `
+                        <div class="user-item">
+                            <div class="user-details">
+                                <div class="user-name">${session.username}</div>
+                                <div class="user-meta">
+                                    IP: ${session.ip_address}<br>
+                                    MAC: ${session.mac_address}<br>
+                                    Connexion: ${new Date(session.login_time).toLocaleString('fr-FR')}
+                                </div>
+                            </div>
+                            <div class="user-location">
+                                ${getCountryName(coords)}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                userList.innerHTML = userHtml;
+                
+                // Centrer la carte sur les marqueurs
+                if (window.userMarkers.length > 0) {
+                    const group = new L.featureGroup(window.userMarkers);
+                    window.heatmapMap.fitBounds(group.getBounds().pad(0.1));
+                }
+                
+                // Mettre à jour le compteur
+                document.getElementById('sessions-count').textContent = sessions.length;
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement de la heatmap:', error);
+                document.getElementById('userList').innerHTML = 
+                    '<p class="no-logs">Erreur lors du chargement des données.</p>';
+            }
+        }
+        
+        async function geolocateIP(ip) {
+            try {
+                // Utiliser l'API Flask pour la géolocalisation réelle
+                const response = await fetch(`/api/geolocate/${ip}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log(`Géolocalisation réussie pour ${ip}: ${data.city}, ${data.country}`);
+                    return [data.lat, data.lon];
+                } else {
+                    console.log(`Géolocalisation échouée pour ${ip}, utilisation de la position par défaut`);
+                    return [48.8566, 2.3522]; // Paris par défaut
+                }
+            } catch (error) {
+                console.error(`Erreur de géolocalisation pour ${ip}:`, error);
+                return [48.8566, 2.3522]; // Paris par défaut
+            }
+        }
+        
+        function getCountryName(coords) {
+            // Fonction améliorée pour détecter les pays par coordonnées approximatives
+            const lat = coords[0];
+            const lon = coords[1];
+            
+            // Afrique du Nord et Moyen-Orient (avec Sahara marocain)
+            if (lat >= 20 && lat <= 37 && lon >= -18 && lon <= 15) {
+                // Maroc (incluant le Sahara marocain)
+                if (lat >= 20 && lat <= 36 && lon >= -18 && lon <= -1) return 'Maroc';
+                // Algérie
+                if (lat >= 19 && lat <= 37 && lon >= -2 && lon <= 12) return 'Algérie';
+                // Tunisie
+                if (lat >= 30 && lat <= 37 && lon >= 9 && lon <= 12) return 'Tunisie';
+                // Libye
+                if (lat >= 20 && lat <= 33 && lon >= 10 && lon <= 25) return 'Libye';
+                // Égypte
+                if (lat >= 21 && lat <= 32 && lon >= 24 && lon <= 37) return 'Égypte';
+                // Mauritanie
+                if (lat >= 15 && lat <= 27 && lon >= -17 && lon <= -4) return 'Mauritanie';
+                // Mali
+                if (lat >= 10 && lat <= 25 && lon >= -12 && lon >= 4) return 'Mali';
+                // Niger
+                if (lat >= 11 && lat <= 24 && lon >= 0 && lon <= 16) return 'Niger';
+                // Tchad
+                if (lat >= 10 && lat <= 23 && lon >= 13 && lon <= 24) return 'Tchad';
+                // Soudan
+                if (lat >= 8 && lat <= 23 && lon >= 21 && lon <= 39) return 'Soudan';
+            }
+            
+            // Moyen-Orient
+            if (lat >= 15 && lat <= 32 && lon >= 35 && lon <= 56) {
+                if (lat >= 29 && lat <= 32 && lon >= 34 && lon <= 36) return 'Palestine/Israël';
+                if (lat >= 31 && lat <= 33 && lon >= 35 && lon <= 36) return 'Jordanie';
+                if (lat >= 32 && lat <= 37 && lon >= 35 && lon <= 42) return 'Syrie';
+                if (lat >= 33 && lat <= 37 && lon >= 42 && lon <= 48) return 'Iraq';
+                if (lat >= 26 && lat <= 32 && lon >= 44 && lon <= 52) return 'Arabie Saoudite';
+                if (lat >= 24 && lat <= 30 && lon >= 46 && lon <= 56) return 'Émirats Arabes Unis';
+                if (lat >= 25 && lat <= 28 && lon >= 50 && lon <= 54) return 'Qatar';
+                if (lat >= 26 && lat <= 30 && lon >= 56 && lon >= 59) return 'Koweït';
+                if (lat >= 15 && lat <= 18 && lon >= 43 && lon <= 53) return 'Yémen';
+                if (lat >= 22 && lat <= 32 && lon >= 35 && lon <= 48) return 'Liban';
+            }
+            
+            // Europe
+            if (lat >= 35 && lat <= 71 && lon >= -10 && lon <= 40) {
+                if (lat >= 41 && lat <= 51 && lon >= -5 && lon <= 10) return 'France';
+                if (lat >= 50 && lat <= 60 && lon >= -10 && lon <= 2) return 'Royaume-Uni';
+                if (lat >= 47 && lat <= 55 && lon >= 6 && lon <= 15) return 'Allemagne';
+                if (lat >= 36 && lat <= 43 && lon >= -10 && lon >= 4) return 'Espagne';
+                if (lat >= 42 && lat <= 47 && lon >= 7 && lon <= 13) return 'Italie';
+                if (lat >= 52 && lat <= 71 && lon >= 3 && lon <= 23) return 'Scandinavie';
+            }
+            
+            // Amérique du Nord
+            if (lat >= 25 && lat <= 70 && lon >= -170 && lon <= -50) {
+                if (lat >= 25 && lat <= 49 && lon >= -125 && lon <= -66) return 'USA';
+                if (lat >= 41 && lat <= 83 && lon >= -141 && lon >= -52) return 'Canada';
+                if (lat >= 14 && lat <= 32 && lon >= -118 && lon >= -86) return 'Mexique';
+            }
+            
+            // Asie
+            if (lat >= -10 && lat <= 55 && lon >= 60 && lon <= 150) {
+                if (lat >= 24 && lat <= 46 && lon >= 60 && lon <= 75) return 'Inde';
+                if (lat >= 35 && lat <= 43 && lon >= 125 && lon <= 146) return 'Japon';
+                if (lat >= 18 && lat <= 54 && lon >= 73 && lon <= 135) return 'Chine';
+                if (lat >= -5 && lat <= 6 && lon >= 95 && lon <= 141) return 'Indonésie';
+            }
+            
+            // Afrique Subsaharienne
+            if (lat >= -35 && lat <= 15 && lon >= -20 && lon <= 55) {
+                if (lat >= -35 && lat <= -22 && lon >= 16 && lon <= 33) return 'Afrique du Sud';
+                if (lat >= -12 && lat <= 5 && lon >= 27 && lon <= 41) return 'Kenya/Tanzanie';
+                if (lat >= 4 && lat <= 14 && lon >= -4 && lon <= 2) return 'Nigeria';
+            }
+            
+            // Amérique du Sud
+            if (lat >= -56 && lat <= 13 && lon >= -82 && lon <= -32) {
+                if (lat >= -56 && lat <= -17 && lon >= -76 && lon <= -66) return 'Chili';
+                if (lat >= -34 && lat <= 5 && lon >= -74 && lon <= -34) return 'Brésil';
+                if (lat >= -55 && lat <= -21 && lon >= -74 && lon <= -53) return 'Argentine';
+            }
+            
+            // Océanie
+            if (lat >= -50 && lat <= -10 && lon >= 110 && lon <= 180) {
+                return 'Australie/Nouvelle-Zélande';
+            }
+            
+            return 'Localisation inconnue';
+        }
+        
+        function getActivityColor(activityType) {
+            const colors = {
+                'login': '#4CAF50',
+                'page_access': '#2196F3',
+                'calculation': '#FF9800',
+                'logout': '#F44336',
+                'admin_access': '#9C27B0',
+                'default': '#607D8B'
+            };
+            return colors[activityType] || colors.default;
+        }
+        
+        function refreshHeatmap() {
+            loadHeatmap();
+        }
+
+        async function loadActivities() {
+            try {
+                const response = await fetch('/admin/activities');
+                const activities = await response.json();
+                
+                const container = document.getElementById('activities-container');
+                
+                if (activities.length === 0) {
+                    container.innerHTML = '<p class="no-logs">Aucune activité enregistrée.</p>';
+                    return;
+                }
+                
+                const html = activities.slice(0, 20).map(activity => `
+                    <div class="log-card">
+                        <div class="log-user">${activity.username}</div>
+                        <div class="log-row">
+                            <span class="log-key">Type</span>
+                            <span class="log-val">${activity.activity_type}</span>
+                        </div>
+                        <div class="log-row">
+                            <span class="log-key">Détails</span>
+                            <span class="log-val">${activity.activity_details || 'N/A'}</span>
+                        </div>
+                        <div class="log-row">
+                            <span class="log-key">IP</span>
+                            <span class="log-val">${activity.ip_address}</span>
+                        </div>
+                        <div class="log-row">
+                            <span class="log-key">Date</span>
+                            <span class="log-val">${new Date(activity.timestamp).toLocaleString('fr-FR')}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = '<div class="log-grid">' + html + '</div>';
+                document.getElementById('activities-count').textContent = activities.length;
+                
+            } catch (error) {
+                document.getElementById('activities-container').innerHTML = 
+                    '<p class="no-logs">Erreur lors du chargement des activités.</p>';
+            }
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate user data for demo
+            document.getElementById('current-user').textContent = 'Admin';
+            document.getElementById('users-count').textContent = '1';
+        });
+    </script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+</body>
+</html>

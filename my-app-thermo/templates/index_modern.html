@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Loi de Raoult - Interface Moderne</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ff9ec7 0%, #e8b4ff 50%, #87ceeb 100%);
+            --secondary-gradient: linear-gradient(135deg, #ffb3d9 0%, #f0c6ff 50%, #b3d9ff 100%);
+            --success-gradient: linear-gradient(135deg, #ff9ec7 0%, #e8b4ff 50%, #87ceeb 100%);
+            --warning-gradient: linear-gradient(135deg, #ffcce5 0%, #e6ccff 50%, #cce7ff 100%);
+            --dark-bg: #2a1a3a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ff9ec7 0%, #e8b4ff 30%, #ffb3d9 70%, #87ceeb 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(270deg, #ff9ec7, #e8b4ff, #ffb3d9, #87ceeb, #f0c6ff);
+            background-size: 1000% 1000%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .heart-particle {
+            position: absolute;
+            font-size: 12px;
+            color: rgba(255, 158, 199, 0.7);
+            animation: floatHeart 15s infinite linear;
+        }
+
+        .star-particle {
+            position: absolute;
+            font-size: 10px;
+            color: rgba(135, 206, 235, 0.7);
+            animation: floatStar 18s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatStar {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(-50px) rotate(-360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation */
+        .navbar-modern {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 1rem 2rem;
+            position: relative;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #fff, #f093fb, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(240, 147, 251, 0.8)); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Buttons */
+        .btn-modern {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary-modern {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary-modern {
+            background: var(--glass-bg);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary-modern:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Cards */
+        .card-modern {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        /* Theory Section */
+        .theory-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 4rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .theory-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .formula-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .molecule-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .molecule {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            min-width: 200px;
+            margin: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .molecule:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .molecule-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .molecule-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .molecule-formula {
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        .footer-modern {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .molecule-display {
+                flex-direction: column;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar-modern">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="navbar-brand">
+                    <i class="fas fa-flask me-2"></i>Calculateur Raoult
+                </div>
+                <div>
+                    <a href="#home" class="nav-link">Accueil</a>
+                    <a href="#calcul" class="nav-link">Calcul</a>
+                    <a href="#theory" class="nav-link">Théorie</a>
+                    <a href="#about" class="nav-link">À propos</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <i class="fas fa-atom me-3"></i>Calculateur Loi de Raoult
+            </h1>
+            <p class="hero-subtitle">
+                Solution thermodynamique interactive pour les mélanges binaires Benzène/Toluène
+            </p>
+            
+            <div class="mb-4">
+                <div class="badge bg-info text-dark p-3">
+                    <i class="fas fa-temperature-high me-2"></i>
+                    Température de référence : 80°C
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center flex-wrap">
+                <a href="/calcul" class="btn-modern btn-primary-modern">
+                    <i class="fas fa-calculator me-2"></i>Commencer les calculs
+                </a>
+                <a href="#theory" class="btn-modern btn-secondary-modern">
+                    <i class="fas fa-book me-2"></i>Voir la théorie
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container" id="features">
+        <div class="features-grid">
+            <div class="card-modern">
+                <div class="card-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h3 class="card-title">Calculs Précis</h3>
+                <p class="card-text">
+                    Effectuez des calculs thermodynamiques précis basés sur la loi de Raoult avec validation en temps réel
+                </p>
+            </div>
+
+            <div class="card-modern">
+                <div class="card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="card-title">Historique Complet</h3>
+                <p class="card-text">
+                    Suivez tous vos calculs avec un historique détaillé, exportation CSV et suppression sélective
+                </p>
+            </div>
+
+            <div class="card-modern">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="card-title">Visualisation</h3>
+                <p class="card-text">
+                    Interface moderne avec animations fluides et design responsive pour une expérience utilisateur optimale
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theory Section -->
+    <section class="container theory-section" id="theory">
+        <h2 class="theory-title">
+            <i class="fas fa-flask me-2"></i>Théorie : Loi de Raoult
+        </h2>
+
+        <div class="molecule-display">
+            <div class="molecule">
+                <div class="molecule-icon" style="color: #4facfe;">
+                    <i class="fas fa-vial"></i>
+                </div>
+                <div class="molecule-name">Benzène</div>
+                <div class="molecule-formula">C<sub>6</sub>H<sub>6</sub></div>
+                <div class="mt-2">P<sub>sat</sub> = 101.3 kPa</div>
+            </div>
+
+            <div class="molecule">
+                <div class="molecule-icon" style="color: #f093fb;">
+                    <i class="fas fa-vial"></i>
+                </div>
+                <div class="molecule-name">Toluène</div>
+                <div class="molecule-formula">C<sub>7</sub>H<sub>8</sub></div>
+                <div class="mt-2">P<sub>sat</sub> = 40.0 kPa</div>
+            </div>
+        </div>
+
+        <div class="formula-box">
+            <h4 class="mb-3">Pression de bulle</h4>
+            <p class="formula-text">
+                P<sub>bulle</sub> = x<sub>1</sub> × P<sub>1,sat</sub> + x<sub>2</sub> × P<sub>2,sat</sub>
+            </p>
+        </div>
+
+        <div class="formula-box">
+            <h4 class="mb-3">Fractions molaires en phase vapeur</h4>
+            <p class="formula-text">
+                y<sub>1</sub> = (x<sub>1</sub> × P<sub>1,sat</sub>) / P<sub>bulle</sub><br>
+                y<sub>2</sub> = (x<sub>2</sub> × P<sub>2,sat</sub>) / P<sub>bulle</sub>
+            </p>
+        </div>
+
+        <div class="text-center">
+            <a href="/calcul" class="btn-modern btn-primary-modern">
+                <i class="fas fa-play me-2"></i>Essayer maintenant
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-modern">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-code me-2"></i>Calculateur Loi de Raoult © 2024 | 
+                <i class="fas fa-flask me-2"></i>Thermodynamique Appliquée
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Create floating particles with hearts and stars
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            // Create regular particles
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Create heart particles
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-particle';
+                heart.innerHTML = '♥';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 15 + 's';
+                heart.style.animationDuration = (12 + Math.random() * 8) + 's';
+                particlesContainer.appendChild(heart);
+            }
+            
+            // Create star particles
+            for (let i = 0; i < 10; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-particle';
+                star.innerHTML = '✦';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 18 + 's';
+                star.style.animationDuration = (14 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(star);
+            }
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-modern');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(15, 15, 35, 0.95)';
+            } else {
+                navbar.style.background = 'var(--glass-bg)';
+            }
+        });
+
+        // Initialize particles on load
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Add entrance animations
+            const cards = document.querySelectorAll('.card-modern');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+
+        // Interactive hover effects
+        document.querySelectorAll('.btn-modern').forEach(btn => {
+            btn.addEventListener('mouseenter', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+                ripple.style.width = ripple.style.height = '0';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.transition = 'width 0.6s, height 0.6s';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.style.width = ripple.style.height = '300px';
+                }, 10);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,31 +1,411 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Calculateur Loi de Raoult</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ff9ec7 0%, #e8b4ff 30%, #ffb3d9 60%, #87ceeb 100%);
+            --secondary-gradient: linear-gradient(135deg, #ffb3d9 0%, #f0c6ff 50%, #b3d9ff 100%);
+            --success-gradient: linear-gradient(135deg, #ff9ec7 0%, #e8b4ff 50%, #87ceeb 100%);
+            --dark-bg: #2a1a3a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+        }
 
-{% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <h2>Connexion</h2>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ff99cc 0%, #ffa0d0 30%, #ffd7d9 60%, #c9e4ca 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(270deg, #ff99cc, #ffa0d0, #ffd7d9, #c9e4ca, #ffd2c9);
+            background-size: 1000% 1000%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .heart-particle {
+            position: absolute;
+            font-size: 12px;
+            color: rgba(255, 158, 199, 0.7);
+            animation: floatHeart 15s infinite linear;
+        }
+
+        .star-particle {
+            position: absolute;
+            font-size: 10px;
+            color: rgba(135, 206, 235, 0.7);
+            animation: floatStar 18s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes floatStar {
+            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(-50px) rotate(-360deg); opacity: 0; }
+        }
+
+        /* Login Container */
+        .login-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+        }
+
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #fff, #ffa0d0, #c9e4ca);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* Form Controls */
+        .form-label-modern {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-control-modern {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            padding: 1rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control-modern::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-control-modern:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ff99cc;
+            box-shadow: 0 0 20px rgba(255, 179, 217, 0.3);
+            color: white;
+            outline: none;
+        }
+
+        .input-group-modern {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .input-with-icon {
+            padding-left: 3rem !important;
+        }
+
+        /* Buttons */
+        .btn-login {
+            width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            background: var(--success-gradient);
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 179, 217, 0.6);
+        }
+
+        /* Alert */
+        .alert-modern {
+            background: rgba(245, 87, 108, 0.2);
+            border: 1px solid rgba(245, 87, 108, 0.3);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            text-align: center;
+        }
+
+        /* Links */
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .auth-links a {
+            color: #87ceeb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-links a:hover {
+            color: #a8e6cf;
+            text-decoration: underline;
+        }
+
+        /* Back to Home */
+        .back-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-home:hover {
+            color: #87ceeb;
+            transform: translateX(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .login-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Back to Home -->
+    <a href="/" class="back-home">
+        <i class="fas fa-arrow-left me-2"></i>Accueil
+    </a>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <h1 class="login-title">
+            <i class="fas fa-sign-in-alt me-2"></i>Connexion
+        </h1>
+        <p class="login-subtitle">Accédez à votre espace de calcul</p>
+
         {% if error %}
-            <div class="error-bar" style="display: block;">{{ error }}</div>
+            <div class="alert-modern">
+                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+            </div>
         {% endif %}
-        <form method="POST">
-            <div class="form-group">
-                <label for="username">Nom d'utilisateur ou email</label>
-                <input type="text" id="username" name="username" required placeholder="Votre identifiant ou email">
-            </div>
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required placeholder="Votre mot de passe">
-            </div>
-            <input type="hidden" name="mac" id="mac-input">
-            <button type="submit" class="btn-primary">Se connecter</button>
-        </form>
-        <p style="text-align: center; margin-top: 1.5rem;">
-            Pas encore inscrit ? <a href="/register">Créer un compte</a>
-        </p>
-    </div>
-</div>
 
-<script>
-    document.getElementById('mac-input').value = localStorage.getItem('mac') || '00:00:00:00:00:00';
-</script>
-{% endblock %}
+        <form method="POST">
+            <div class="input-group-modern">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" 
+                       class="form-control-modern input-with-icon" 
+                       id="username" 
+                       name="username" 
+                       required 
+                       placeholder="Nom d'utilisateur">
+            </div>
+
+            <div class="input-group-modern">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" 
+                       class="form-control-modern input-with-icon" 
+                       id="password" 
+                       name="password" 
+                       required 
+                       placeholder="Mot de passe">
+            </div>
+
+            <input type="hidden" name="mac" id="mac-input">
+
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>Pas encore inscrit ? <a href="/register">Créer un compte</a></p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            // Create regular particles
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Create heart particles
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-particle';
+                heart.innerHTML = '¨';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 15 + 's';
+                heart.style.animationDuration = (12 + Math.random() * 8) + 's';
+                particlesContainer.appendChild(heart);
+            }
+            
+            // Create star particles
+            for (let i = 0; i < 10; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-particle';
+                star.innerHTML = '¨';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 18 + 's';
+                star.style.animationDuration = (14 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(star);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Add focus animations
+            const inputs = document.querySelectorAll('.form-control-modern');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            document.getElementById('mac-input').value = localStorage.getItem('mac') || '00:00:00:00:00:00';
+        });
+    </script>
+</body>
+</html>

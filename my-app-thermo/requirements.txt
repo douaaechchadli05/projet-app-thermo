@@ -1,10 +1,44 @@
-Flask==3.0.3
+# Dépendances Python pour l'application Calculateur Loi de Raoult
+# Version spécifique pour garantir la compatibilité
+
+# Framework Flask principal
+Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Flask-Mail==0.10.0
 Flask-Bcrypt==1.0.1
-Flask-Limiter==3.5.1
-folium==0.16.0
-requests==2.31.0
+Flask-Limiter==3.5.0
+
+# Base de données MySQL
+PyMySQL==1.1.0
+cryptography==41.0.7
+
+# Configuration et environnement
 python-dotenv==1.0.0
-Flask-Mail==0.9.1
-geoip2==4.8.0
+
+# Sécurité et tokens
+itsdangerous==2.1.2
+
+# Géolocalisation et requêtes HTTP
+requests==2.31.0
+
+# Visualisation et heatmap
+folium==0.15.0
+
+# Serveur de production
+gunicorn==21.2.0
+
+# Formulaires et validation
+WTForms==3.1.1
+email-validator==2.1.0
+
+# Développement et testing (optionnel)
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+black==23.11.0
+flake8==6.1.0
+
+# Monitoring et logging (optionnel)
+sentry-sdk[flask]==1.38.0

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calcul Thermodynamique</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error {
+            background: #dc3545;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .result {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .result-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/historique">Historique</a>
+            <a href="/logout">Déconnexion</a>
+        </div>
+        
+        <div class="card">
+            <h2>Calcul des pressions de bulle</h2>
+            <p>Calculez les pressions saturantes et les fractions molaires pour une solution benzène/toluène.</p>
+            
+            <div id="error-bar" class="error" style="display: none;"></div>
+            
+            <form id="calcul-form">
+                <div class="form-group">
+                    <label for="nom">Nom du calcul:</label>
+                    <input type="text" id="nom" name="nom" placeholder="Ex: Mélange 40% benzène à 80°C">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="temperature">Température (°C):</label>
+                        <input type="number" id="temperature" name="temperature" step="0.1" value="80" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="x1">Fraction benzène (x1):</label>
+                        <input type="number" id="x1" name="x1" step="0.01" min="0" max="1" value="0.4" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="x2">Fraction toluène (x2):</label>
+                        <input type="number" id="x2" name="x2" step="0.01" min="0" max="1" value="0.6" required>
+                    </div>
+                </div>
+                
+                <button type="submit">Calculer</button>
+            </form>
+        </div>
+
+        <div id="resultats" class="card" style="display: none;">
+            <h3>Résultats du calcul</h3>
+            <div class="result-grid">
+                <div class="result-item">
+                    <h4>Conditions</h4>
+                    <p><strong>Température:</strong> <span id="r-temperature"></span> °C</p>
+                    <p><strong>x1 (benzène):</strong> <span id="r-x1"></span></p>
+                    <p><strong>x2 (toluène):</strong> <span id="r-x2"></span></p>
+                </div>
+                <div class="result-item">
+                    <h4>Pressions saturantes</h4>
+                    <p><strong>P benzène:</strong> <span id="r-p1sat"></span> kPa</p>
+                    <p><strong>P toluène:</strong> <span id="r-p2sat"></span> kPa</p>
+                </div>
+                <div class="result-item">
+                    <h4>Résultats</h4>
+                    <p><strong>P bulle:</strong> <span id="r-pbulle"></span> kPa</p>
+                    <p><strong>y1 (benzène):</strong> <span id="r-y1"></span></p>
+                    <p><strong>y2 (toluène):</strong> <span id="r-y2"></span></p>
+                    <p><strong>Somme y:</strong> <span id="r-somme"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Historique récent</h3>
+            <div id="historique-container">
+                <p>Chargement de l'historique...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calcul-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const nom = document.getElementById('nom').value || 'Sans nom';
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const x1 = parseFloat(document.getElementById('x1').value);
+            const x2 = parseFloat(document.getElementById('x2').value);
+            
+            if (Math.abs(x1 + x2 - 1) > 0.01) {
+                showError('x1 + x2 doit être égal à 1. Actuellement : ' + (x1 + x2).toFixed(4));
+                return;
+            }
+            
+            try {
+                const response = await fetch('/calculer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nom, temperature, x1, x2 })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showError(data.erreur || 'Erreur lors du calcul');
+                    return;
+                }
+                
+                // Afficher les résultats
+                document.getElementById('r-temperature').textContent = temperature;
+                document.getElementById('r-x1').textContent = x1;
+                document.getElementById('r-x2').textContent = x2;
+                document.getElementById('r-p1sat').textContent = data.antoine.p1sat_kpa.toFixed(3);
+                document.getElementById('r-p2sat').textContent = data.antoine.p2sat_kpa.toFixed(3);
+                document.getElementById('r-pbulle').textContent = data.resultats.p_bulle.toFixed(3);
+                document.getElementById('r-y1').textContent = data.resultats.y1;
+                document.getElementById('r-y2').textContent = data.resultats.y2;
+                document.getElementById('r-somme').textContent = data.resultats.somme_yi.toFixed(4);
+                
+                document.getElementById('resultats').style.display = 'block';
+                hideError();
+                
+                chargerHistorique();
+                
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        });
+
+        function showError(msg) {
+            const el = document.getElementById('error-bar');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error-bar').style.display = 'none';
+        }
+
+        async function chargerHistorique() {
+            const container = document.getElementById('historique-container');
+            container.innerHTML = '<p>Chargement...</p>';
+            
+            try {
+                const response = await fetch('/historique-api');
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p>Aucun calcul historique pour le moment.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '<div style="display: grid; gap: 1rem;">' + 
+                    data.slice(0, 5).map(item => `
+                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                            <strong>${item.nom}</strong> - ${item.date}<br>
+                            T: ${item.temperature}°C, x1: ${item.x1}, P bulle: ${item.p_bulle} kPa
+                        </div>
+                    `).join('') + '</div>';
+                
+            } catch (error) {
+                container.innerHTML = '<p>Erreur de chargement de l\'historique</p>';
+            }
+        }
+
+        // Charger l'historique au démarrage
+        chargerHistorique();
+    </script>
+</body>
+</html>
