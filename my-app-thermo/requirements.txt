@@ -1,6 +1,9 @@
 # Dépendances Python pour l'application Calculateur Loi de Raoult
 # Version spécifique pour garantir la compatibilité
 
+# Serveur WSGI pour le déploiement
+gunicorn==21.2.0
+
 # Framework Flask principal
 Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
@@ -26,15 +29,9 @@ requests==2.31.0
 # Visualisation et heatmap
 folium==0.15.0
 
-# Serveur de production
-gunicorn==21.2.0
-
 # Formulaires et validation
 WTForms==3.1.1
 email-validator==2.1.0
-
-# Développement et testing (optionnel)
-pytest==7.4.3
 pytest-flask==1.3.0
 pytest-cov==4.1.0
 black==23.11.0
