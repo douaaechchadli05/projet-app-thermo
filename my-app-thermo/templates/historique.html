@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Historique des calculs</h2>
+    {% if history %}
+        <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+            {% for item in history %}
+                <div class="result-card" style="padding: 1rem;">
+                    <p><strong>Date :</strong> {{ item.date.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+                    <p><strong>Température :</strong> {{ item.temperature }} °C</p>
+                    <p><strong>x toluène :</strong> {{ item.x1 }}</p>
+                    <p><strong>x benzène :</strong> {{ item.x2 }}</p>
+                    <p><strong>P1sat :</strong> {{ item.p1sat }} kPa</p>
+                    <p><strong>P2sat :</strong> {{ item.p2sat }} kPa</p>
+                    <p><strong>P bulle :</strong> {{ item.p_bulle }} kPa</p>
+                    <p><strong>Somme y :</strong> {{ item.somme_yi }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun calcul historique n'a été trouvé.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Calcul des pressions</h2>
+    
+    <div id="error-bar" class="error-bar" style="display: none;"></div>
+    
+    <form id="calcul-form" class="auth-card" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="nom">Nom du calcul</label>
+            <input type="text" id="nom" name="nom" placeholder="Ex: Mélange 40% benzène à 80°C">
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="temperature">Température (°C)</label>
+            <input type="number" id="temperature" name="temperature" step="0.1" value="80" required>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="x1">Fraction molaire benzène (x1)</label>
+            <input type="number" id="x1" name="x1" step="0.01" min="0" max="1" value="0.4" required>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 180px;">
+            <label for="x2">Fraction molaire toluène (x2)</label>
+            <input type="number" id="x2" name="x2" step="0.01" min="0" max="1" value="0.6" required>
+        </div>
+        <div style="flex: 0 0 160px;">
+            <button type="submit" class="btn-primary" style="width: 100%;">Calculer</button>
+        </div>
+    </form>
+
+    <div id="resultats" style="margin-top: 2rem; display: none;">
+        <div class="result-card">
+            <h3>Résultats</h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 220px;">
+                    <p><strong>Température :</strong> <span id="r-temperature"></span> °C</p>
+                    <p><strong>x1 (benzène) :</strong> <span id="r-x1"></span></p>
+                    <p><strong>x2 (toluène) :</strong> <span id="r-x2"></span></p>
+                </div>
+                <div style="flex: 1; min-width: 220px;">
+                    <p><strong>P benzène sat :</strong> <span id="r-p1sat"></span> kPa</p>
+                    <p><strong>P toluène sat :</strong> <span id="r-p2sat"></span> kPa</p>
+                    <p><strong>P bulle :</strong> <span id="r-pbulle"></span> kPa</p>
+                </div>
+                <div style="flex: 1; min-width: 220px;">
+                    <p><strong>y1 (benzène) :</strong> <span id="r-y1"></span></p>
+                    <p><strong>y2 (toluène) :</strong> <span id="r-y2"></span></p>
+                    <p><strong>Somme y :</strong> <span id="r-somme"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section style="margin-top: 2rem;">
+        <h3>Historique</h3>
+        <div id="historique-container">
+            <p>Chargement de l'historique...</p>
+        </div>
+    </section>
+</div>
+
+<script>
+document.getElementById('calcul-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const nom = document.getElementById('nom').value || 'Sans nom';
+    const temperature = parseFloat(document.getElementById('temperature').value);
+    const x1 = parseFloat(document.getElementById('x1').value);
+    const x2 = parseFloat(document.getElementById('x2').value);
+    
+    if (Math.abs(x1 + x2 - 1) > 0.01) {
+        showError('x1 + x2 doit être égal à 1. Actuellement : ' + (x1 + x2).toFixed(4));
+        return;
+    }
+    
+    if (x1 < 0 || x1 > 1 || x2 < 0 || x2 > 1) {
+        showError('Les fractions molaires doivent être comprises entre 0 et 1.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/calculer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nom, temperature, x1, x2 })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            showError(data.erreur || 'Erreur lors du calcul');
+            return;
+        }
+        
+        // Afficher les résultats
+        document.getElementById('r-temperature').textContent = temperature;
+        document.getElementById('r-x1').textContent = x1;
+        document.getElementById('r-x2').textContent = x2;
+        document.getElementById('r-p1sat').textContent = data.antoine.p1sat_kpa.toFixed(3);
+        document.getElementById('r-p2sat').textContent = data.antoine.p2sat_kpa.toFixed(3);
+        document.getElementById('r-pbulle').textContent = data.resultats.p_bulle.toFixed(3);
+        document.getElementById('r-y1').textContent = data.resultats.y1;
+        document.getElementById('r-y2').textContent = data.resultats.y2;
+        document.getElementById('r-somme').textContent = data.resultats.somme_yi.toFixed(4);
+        
+        document.getElementById('resultats').style.display = 'block';
+        hideError();
+        
+        // Rafraîchir l'historique
+        chargerHistorique();
+        
+    } catch (error) {
+        showError('Erreur de connexion au serveur');
+        console.error(error);
+    }
+});
+
+function showError(msg) {
+    const el = document.getElementById('error-bar');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+function hideError() {
+    document.getElementById('error-bar').style.display = 'none';
+}
+
+async function chargerHistorique() {
+    const container = document.getElementById('historique-container');
+    container.innerHTML = '<p>Chargement...</p>';
+    
+    try {
+        const response = await fetch('/historique');
+        const data = await response.json();
+        
+        if (data.length === 0) {
+            container.innerHTML = '<p>Aucun calcul historique pour le moment.</p>';
+            return;
+        }
+        
+        container.innerHTML = '<div style="display: grid; gap: 1rem;">' + 
+            data.map(item => `
+                <div class="result-card" style="padding: 1rem;">
+                    <p><strong>Nom :</strong> ${item.nom}</p>
+                    <p><strong>Date :</strong> ${item.date}</p>
+                    <p><strong>Température :</strong> ${item.temperature} °C</p>
+                    <p><strong>x1 :</strong> ${item.x1}</p>
+                    <p><strong>x2 :</strong> ${item.x2}</p>
+                    <p><strong>P bulle :</strong> ${item.p_bulle} kPa</p>
+                    <p><strong>Somme y :</strong> ${item.somme_yi}</p>
+                </div>
+            `).join('') + '</div>';
+        
+    } catch (error) {
+        container.innerHTML = '<p>Erreur de chargement de l\'historique</p>';
+        console.error(error);
+    }
+}
+
+// Charger l'historique au démarrage
+chargerHistorique();
+</script>
+{% endblock %}

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur - ThermoCalc</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-dark: #1a1f2e;
+            --secondary-dark: #2d3748;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #87ceeb;
+            --accent-purple: #9f7aea;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Thème clair */
+        [data-theme="light"] {
+            --primary-dark: #f8fafc;
+            --secondary-dark: #e2e8f0;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #0ea5e9;
+            --accent-purple: #8b5cf6;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Thème sombre */
+        [data-theme="dark"] {
+            --primary-dark: #1a1f2e;
+            --secondary-dark: #2d3748;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #87ceeb;
+            --accent-purple: #9f7aea;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Elements */
+        .bg-decoration {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-circle.rose {
+            background: var(--accent-rose);
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle.sky {
+            background: var(--accent-sky);
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .bg-circle.purple {
+            background: var(--accent-purple);
+            width: 350px;
+            height: 350px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-rose);
+        }
+
+        /* Main Container */
+        .main-container {
+            padding-top: 120px;
+            padding-bottom: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .calc-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-rose), var(--accent-purple), var(--accent-sky));
+        }
+
+        .calc-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .calc-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-rose), var(--accent-sky));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .calc-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .calc-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-rose);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.2);
+        }
+
+        /* Button */
+        .btn-calculate {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        /* Results Section */
+        .results-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-sky);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-value.highlight {
+            color: var(--accent-sky);
+            font-size: 1.2rem;
+        }
+
+        /* History Section */
+        .history-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .history-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+        }
+
+        .btn-history {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-sky));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-history:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(159, 174, 234, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--glass-border);
+        }
+
+        .theme-switch:hover {
+            border-color: var(--accent-sky);
+        }
+
+        .theme-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-rose);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .theme-switch.active .theme-slider {
+            transform: translateX(30px);
+            background: var(--accent-sky);
+        }
+
+        .theme-icon {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* Relations Thermodynamiques */
+        .relations-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .relations-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .relations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .relation-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .relation-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-sky);
+            box-shadow: 0 8px 25px rgba(135, 206, 235, 0.2);
+        }
+
+        .relation-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent-purple);
+        }
+
+        .relation-formula {
+            background: linear-gradient(135deg, var(--accent-sky), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .relation-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Relations Section Main */
+        .relations-section-main {
+            margin-bottom: 2rem;
+        }
+
+        /* Buttons Section */
+        .buttons-section {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, var(--accent-sky), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calculator-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .calc-card {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Decoration -->
+    <div class="bg-decoration">
+        <div class="bg-circle rose"></div>
+        <div class="bg-circle sky"></div>
+        <div class="bg-circle purple"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <span>ThermoCalc</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Accueil</a>
+                <a href="/calcul" class="nav-link">Calcul</a>
+                <a href="/historique" class="nav-link">Historique</a>
+                <a href="/logout" class="nav-link">Déconnexion</a>
+                <div class="theme-switcher">
+                    <i class="fas fa-moon theme-icon" id="themeIcon"></i>
+                    <div class="theme-switch" id="themeSwitch">
+                        <div class="theme-slider">
+                            <i class="fas fa-moon" id="sliderIcon"></i>
+                        </div>
+                    </div>
+                    <i class="fas fa-sun theme-icon" id="sunIcon"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Relations Section -->
+        <section class="relations-section-main">
+            <div class="calc-card">
+                <div class="calc-header">
+                    <h2 class="calc-title">Relations Thermodynamiques Utilisées</h2>
+                    <p class="calc-subtitle">Loi de Raoult - Pression de bulle</p>
+                </div>
+                
+                <div class="relations-grid">
+                    <div class="relation-card">
+                        <h4 class="relation-title">Équation d'Antoine</h4>
+                        <div class="relation-formula">
+                            log¹(P_sat) = A - B/(C + T)
+                        </div>
+                        <p class="relation-desc">
+                            Calcule la pression de vapeur saturante pour chaque composant pur
+                        </p>
+                    </div>
+                    
+                    <div class="relation-card">
+                        <h4 class="relation-title">Loi de Raoult</h4>
+                        <div class="relation-formula">
+                            P_bulle = ×(x × P_sat)
+                        </div>
+                        <p class="relation-desc">
+                            Calcule la pression de bulle du mélange binaire
+                        </p>
+                    </div>
+                    
+                    <div class="relation-card">
+                        <h4 class="relation-title">Fractions Molaires Vapeur</h4>
+                        <div class="relation-formula">
+                            y = (x × P_sat) / P_bulle
+                        </div>
+                        <p class="relation-desc">
+                            Calcule les fractions molaires en phase vapeur
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section class="calculator-section">
+            <!-- Input Card -->
+            <div class="calc-card">
+                <div class="calc-header">
+                    <h2 class="calc-title">Paramètres de Calcul</h2>
+                    <p class="calc-subtitle">Valeurs à insérer</p>
+                </div>
+
+                <form class="calc-form" id="calculForm">
+                    <div class="form-group">
+                        <label class="form-label">Nom du calcul</label>
+                        <input type="text" 
+                               class="form-input" 
+                               id="nom" 
+                               name="nom" 
+                               placeholder="Ex: Calcul_001" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Température (°C)</label>
+                        <input type="number" 
+                               class="form-input" 
+                               id="temperature" 
+                               name="temperature" 
+                               placeholder="25.0" 
+                               step="0.1" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Fraction molaire x1 (Benzène)</label>
+                        <input type="number" 
+                               class="form-input" 
+                               id="x1" 
+                               name="x1" 
+                               placeholder="0.5" 
+                               step="0.01" 
+                               min="0" 
+                               max="1" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Fraction molaire x2 (Toluène)</label>
+                        <input type="number" 
+                               class="form-input" 
+                               id="x2" 
+                               name="x2" 
+                               placeholder="0.5" 
+                               step="0.01" 
+                               min="0" 
+                               max="1" 
+                               required>
+                    </div>
+
+                    <!-- Buttons Section -->
+                    <div class="buttons-section">
+                        <button type="submit" class="btn-calculate">
+                            <i class="fas fa-calculator"></i>
+                            Calculer
+                        </button>
+                        <button type="button" class="btn-reset" onclick="resetForm()">
+                            <i class="fas fa-redo"></i>
+                            Réinitialiser
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Card -->
+            <div class="calc-card">
+                <div class="calc-header">
+                    <h2 class="calc-title">Résultats</h2>
+                    <p class="calc-subtitle">Pressions et fractions vapeur</p>
+                </div>
+
+                <div class="results-section" id="resultsSection">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <p>Effectuez un calcul pour voir les résultats</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section class="history-section">
+            <div class="history-header">
+                <h2 class="history-title">
+                    <i class="fas fa-history me-2"></i>
+                    Historique des calculs
+                </h2>
+                <button class="btn-history" onclick="loadHistory()">
+                    <i class="fas fa-sync"></i>
+                    Actualiser
+                </button>
+            </div>
+
+            <div id="historyContent">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <p>Aucun calcul dans l'historique</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/session_timeout.js"></script>
+    <script>
+        // Form submission
+        document.getElementById('calculForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                nom: formData.get('nom'),
+                temperature: parseFloat(formData.get('temperature')),
+                x1: parseFloat(formData.get('x1')),
+                x2: parseFloat(formData.get('x2'))
+            };
+
+            try {
+                const response = await fetch('/calculer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayResults(result);
+                    loadHistory(); // Refresh history
+                } else {
+                    alert('Erreur lors du calcul');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur de connexion');
+            }
+        });
+
+        // Display results
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const antoine = result.antoine || {};
+            const resultats = result.resultats || {};
+            
+            resultsSection.innerHTML = `
+                <div class="results-header">
+                    <h3 class="results-title">Résultats pour ${result.nom}</h3>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Pression de bulle (Pbulle)</span>
+                    <span class="result-value highlight">${resultats.p_bulle || result.p_bulle} kPa</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Pression saturation Benzène (P1sat)</span>
+                    <span class="result-value">${antoine.p1sat_kpa || result.p1sat} kPa (${antoine.p1sat_mmhg || 'N/A'} mmHg)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Pression saturation Toluène (P2sat)</span>
+                    <span class="result-value">${antoine.p2sat_kpa || result.p2sat} kPa (${antoine.p2sat_mmhg || 'N/A'} mmHg)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Terme x1 × P1sat</span>
+                    <span class="result-value">${resultats.terme1 || 'N/A'}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Terme x2 × P2sat</span>
+                    <span class="result-value">${resultats.terme2 || 'N/A'}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Fraction vapeur Benzène (y1)</span>
+                    <span class="result-value">${resultats.y1 || result.y1}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Fraction vapeur Toluène (y2)</span>
+                    <span class="result-value">${resultats.y2 || result.y2}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Somme yi</span>
+                    <span class="result-value">${resultats.somme_yi || result.somme_yi} ${resultats.verif_ok ? '(OK)' : '(ERREUR)'}</span>
+                </div>
+            `;
+        }
+
+        // Load history
+        async function loadHistory() {
+            try {
+                const response = await fetch('/historique-api');
+                const history = await response.json();
+                
+                const historyContent = document.getElementById('historyContent');
+                
+                if (history.length === 0) {
+                    historyContent.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <p>Aucun calcul dans l'historique</p>
+                        </div>
+                    `;
+                } else {
+                    historyContent.innerHTML = history.map(item => `
+                        <div class="result-item">
+                            <div>
+                                <div class="result-label">${item.nom}</div>
+                                <small style="color: var(--text-secondary)">${item.date}</small>
+                            </div>
+                            <div class="result-value">${item.p_bulle} kPa</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+            
+            // Theme Management
+            const themeSwitch = document.getElementById('themeSwitch');
+            const themeIcon = document.getElementById('themeIcon');
+            const sliderIcon = document.getElementById('sliderIcon');
+            const sunIcon = document.getElementById('sunIcon');
+            
+            // Load saved theme or default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            
+            // Theme switch event listener
+            themeSwitch.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            function setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                if (theme === 'light') {
+                    themeSwitch.classList.add('active');
+                    themeIcon.className = 'fas fa-sun theme-icon';
+                    sliderIcon.className = 'fas fa-sun';
+                    sunIcon.style.color = 'var(--accent-sky)';
+                    themeIcon.style.color = 'var(--accent-sky)';
+                } else {
+                    themeSwitch.classList.remove('active');
+                    themeIcon.className = 'fas fa-moon theme-icon';
+                    sliderIcon.className = 'fas fa-moon';
+                    sunIcon.style.color = 'var(--text-secondary)';
+                    themeIcon.style.color = 'var(--text-secondary)';
+                }
+            }
+            
+            // Initialize theme
+            setTheme(savedTheme);
+        });
+    </script>
+    
+    <script>
+        // Reset form function
+        function resetForm() {
+            document.getElementById('calculForm').reset();
+            // Clear results
+            document.getElementById('resultsSection').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <p>Effectuez un calcul pour voir les résultats</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

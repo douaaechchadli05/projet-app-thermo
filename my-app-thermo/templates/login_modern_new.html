@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - ThermoCalc</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-dark: #1a1f2e;
+            --secondary-dark: #2d3748;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #87ceeb;
+            --accent-purple: #9f7aea;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Thème clair */
+        [data-theme="light"] {
+            --primary-dark: #f8fafc;
+            --secondary-dark: #e2e8f0;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #0ea5e9;
+            --accent-purple: #8b5cf6;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Thème sombre */
+        [data-theme="dark"] {
+            --primary-dark: #1a1f2e;
+            --secondary-dark: #2d3748;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #87ceeb;
+            --accent-purple: #9f7aea;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background Elements */
+        .bg-decoration {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-circle.rose {
+            background: var(--accent-rose);
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle.sky {
+            background: var(--accent-sky);
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .bg-circle.purple {
+            background: var(--accent-purple);
+            width: 350px;
+            height: 350px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Login Container */
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-rose), var(--accent-purple), var(--accent-sky));
+        }
+
+        /* Back to Home */
+        .back-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-home:hover {
+            color: var(--accent-rose);
+            transform: translateX(-5px);
+        }
+
+        /* Login Header */
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-rose), var(--accent-sky));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-rose);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.2);
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus + .form-icon {
+            color: var(--accent-rose);
+        }
+
+        /* Button */
+        .btn-login {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent-rose), var(--accent-purple));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .forgot-link {
+            color: var(--accent-sky);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .forgot-link:hover {
+            color: var(--accent-purple);
+            transform: translateY(-1px);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Links */
+        .login-links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .login-links p {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-links a {
+            color: var(--accent-sky);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .login-links a:hover {
+            color: var(--accent-rose);
+        }
+
+        /* Alert */
+        .alert {
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-rose);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .alert.success {
+            background: rgba(135, 206, 235, 0.1);
+            border: 1px solid rgba(135, 206, 235, 0.3);
+            color: var(--accent-sky);
+        }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--glass-border);
+        }
+
+        .theme-switch:hover {
+            border-color: var(--accent-sky);
+        }
+
+        .theme-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-rose);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .theme-switch.active .theme-slider {
+            transform: translateX(30px);
+            background: var(--accent-sky);
+        }
+
+        .theme-icon {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 1rem;
+            }
+            
+            .login-card {
+                padding: 2rem;
+            }
+            
+            .back-home {
+                position: static;
+                margin-bottom: 2rem;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Decoration -->
+    <div class="bg-decoration">
+        <div class="bg-circle rose"></div>
+        <div class="bg-circle sky"></div>
+        <div class="bg-circle purple"></div>
+    </div>
+
+    <!-- Back to Home -->
+    <a href="/" class="back-home">
+        <i class="fas fa-arrow-left"></i>
+        Accueil
+    </a>
+
+    <!-- Theme Switcher -->
+    <div class="theme-switcher" style="position: fixed; top: 2rem; right: 2rem; z-index: 1000;">
+        <i class="fas fa-moon theme-icon" id="themeIcon"></i>
+        <div class="theme-switch" id="themeSwitch">
+            <div class="theme-slider">
+                <i class="fas fa-moon" id="sliderIcon"></i>
+            </div>
+        </div>
+        <i class="fas fa-sun theme-icon" id="sunIcon"></i>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Login Header -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <h1 class="login-title">Connexion</h1>
+                <p class="login-subtitle">Accédez à votre espace de calcul</p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form" method="POST" autocomplete="off">
+                {% if error %}
+                    <div class="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ error|safe }}
+                    </div>
+                {% endif %}
+
+                {% if success %}
+                    <div class="alert success">
+                        <i class="fas fa-check-circle me-2"></i>{{ success }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <input type="text" 
+                           class="form-input" 
+                           id="username" 
+                           name="username" 
+                           placeholder="Nom d'utilisateur" 
+                           autocomplete="off"
+                           required>
+                    <i class="fas fa-user form-icon"></i>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" 
+                           class="form-input" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Mot de passe" 
+                           autocomplete="new-password"
+                           required>
+                    <i class="fas fa-lock form-icon"></i>
+                </div>
+
+                
+                <div class="forgot-password">
+                    <a href="/forgot-password" class="forgot-link">
+                        <i class="fas fa-key me-1"></i>Mot de passe oublié ?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Se connecter
+                </button>
+            </form>
+
+            <!-- Links -->
+            <div class="login-links">
+                <p>Pas encore inscrit ?</p>
+                <a href="/register">Créer un compte</a>
+            </div>
+        </div>
+    </div>
+<!-- Scripts -->
+    <script>
+        // Theme Management
+        const themeSwitch = document.getElementById('themeSwitch');
+        const themeIcon = document.getElementById('themeIcon');
+        const sliderIcon = document.getElementById('sliderIcon');
+        const sunIcon = document.getElementById('sunIcon');
+        
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        
+        // Theme switch event listener
+        themeSwitch.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (theme === 'light') {
+                themeSwitch.classList.add('active');
+                themeIcon.className = 'fas fa-sun theme-icon';
+                sliderIcon.className = 'fas fa-sun';
+                sunIcon.style.color = 'var(--accent-sky)';
+                themeIcon.style.color = 'var(--accent-sky)';
+            } else {
+                themeSwitch.classList.remove('active');
+                themeIcon.className = 'fas fa-moon theme-icon';
+                sliderIcon.className = 'fas fa-moon';
+                sunIcon.style.color = 'var(--text-secondary)';
+                themeIcon.style.color = 'var(--text-secondary)';
+            }
+        }
+        
+        // Initialize theme
+        setTheme(savedTheme);
+    </script>
+</body>
+</html>

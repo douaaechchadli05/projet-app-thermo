@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique des Calculs - Calculateur Loi de Raoult</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-dark: #1a1f2e;
+            --secondary-dark: #2d3748;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #87ceeb;
+            --accent-purple: #9f7aea;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Thème clair */
+        [data-theme="light"] {
+            --primary-dark: #f8fafc;
+            --secondary-dark: #e2e8f0;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #0ea5e9;
+            --accent-purple: #8b5cf6;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Thème sombre */
+        [data-theme="dark"] {
+            --primary-dark: #1a1f2e;
+            --secondary-dark: #2d3748;
+            --accent-rose: #ff6b9d;
+            --accent-sky: #87ceeb;
+            --accent-purple: #9f7aea;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Background Stable - Adaptatif selon le thème */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: var(--primary-dark);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Navigation */
+        .navbar-modern {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        /* History Section */
+        .history-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #fff, #f093fb, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: #4facfe;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* History Card */
+        .history-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* History Controls */
+        .history-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+}
+
+.btn-clear {
+    background: linear-gradient(135deg, #9f7aea 0%, #b794f4 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #9f7aea 0%, #b794f4 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(159, 122, 234, 0.4);
+        }
+
+        /* History Table */
+        .history-table {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .table-modern {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-modern th {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .table-modern td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            vertical-align: middle;
+        }
+
+        .table-modern tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .table-modern tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* History Item */
+        .history-date {
+            font-weight: 600;
+            color: var(--accent-sky);
+        }
+
+        .history-values {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .history-result {
+            font-weight: 700;
+            color: var(--accent-purple);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-view {
+            background: rgba(135, 206, 235, 0.2);
+            color: var(--accent-sky);
+        }
+
+        .btn-view:hover {
+            background: rgba(135, 206, 235, 0.3);
+            transform: scale(1.05);
+        }
+
+        .btn-delete {
+            background: rgba(245, 87, 108, 0.2);
+            color: #f5576c;
+        }
+
+        .btn-delete:hover {
+            background: rgba(245, 87, 108, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal-custom {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content-custom {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .modal-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title-custom {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .history-controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .control-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .table-modern {
+                font-size: 0.9rem;
+            }
+            
+            .table-modern th,
+            .table-modern td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .history-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--glass-border);
+        }
+
+        .theme-switch:hover {
+            border-color: var(--accent-sky);
+        }
+
+        .theme-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-rose);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .theme-switch.active .theme-slider {
+            transform: translateX(30px);
+            background: var(--accent-sky);
+        }
+
+        .theme-icon {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar-modern">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="navbar-brand">
+                    <i class="fas fa-flask me-2"></i>Calculateur Raoult
+                </div>
+                <div>
+                    <a href="/" class="nav-link">Accueil</a>
+                    <a href="/calcul" class="nav-link">Calcul</a>
+                    <a href="/historique" class="nav-link">Historique</a>
+                    <div class="theme-switcher" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 1rem;">
+                        <i class="fas fa-moon theme-icon" id="themeIcon"></i>
+                        <div class="theme-switch" id="themeSwitch">
+                            <div class="theme-slider">
+                                <i class="fas fa-moon" id="sliderIcon"></i>
+                            </div>
+                        </div>
+                        <i class="fas fa-sun theme-icon" id="sunIcon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- History Section -->
+        <section class="history-section">
+            <h1 class="page-title">
+                <i class="fas fa-history me-3"></i>Historique des Calculs
+            </h1>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stat-value" id="totalCalculs">0</div>
+                    <div class="stat-label">Total des calculs</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value" id="avgPressure">0</div>
+                    <div class="stat-label">Pression moyenne (kPa)</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value" id="todayCalculs">0</div>
+                    <div class="stat-label">Calculs aujourd'hui</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-value" id="maxPressure">0</div>
+                    <div class="stat-label">Pression max (kPa)</div>
+                </div>
+            </div>
+
+            <!-- History Card -->
+            <div class="history-card">
+                <!-- History Controls -->
+                <div class="history-controls">
+                    <div class="search-box">
+                        <input type="text" 
+                               class="search-input" 
+                               id="searchInput" 
+                               placeholder="Rechercher dans l'historique...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn-modern btn-export" onclick="exportHistory()">
+                            <i class="fas fa-download me-2"></i>Exporter
+                        </button>
+                        <button class="btn-modern btn-clear" onclick="clearHistory()">
+                            <i class="fas fa-trash me-2"></i>Vider
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner"></div>
+
+                <!-- History Table -->
+                <div class="history-table" id="historyTable">
+                    <!-- Table content will be loaded here -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-custom" id="detailModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3 class="modal-title-custom">Détails du calcul</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modalBody">
+                <!-- Modal content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let historyData = [];
+        let filteredData = [];
+
+        // Load history data
+        async function loadHistory() {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const historyTable = document.getElementById('historyTable');
+            
+            loadingSpinner.style.display = 'block';
+            historyTable.innerHTML = '';
+
+            try {
+                const response = await fetch('/historique-api');
+                historyData = await response.json();
+                filteredData = [...historyData];
+                
+                displayHistory();
+                updateStatistics();
+            } catch (error) {
+                console.error('Error loading history:', error);
+                historyTable.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="empty-title">Erreur de chargement</div>
+                        <div class="empty-text">Impossible de charger l'historique des calculs</div>
+                    </div>
+                `;
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Display history table
+        function displayHistory() {
+            const historyTable = document.getElementById('historyTable');
+            
+            if (filteredData.length === 0) {
+                historyTable.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <div class="empty-title">Aucun calcul trouvé</div>
+                        <div class="empty-text">Commencez par faire un calcul pour voir votre historique</div>
+                        <a href="/calcul" class="btn-modern btn-export">
+                            <i class="fas fa-plus me-2"></i>Faire un calcul
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Nom</th>
+                            <th>Température</th>
+                            <th>Fractions molaires</th>
+                            <th>Pression de bulle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredData.map(item => `
+                            <tr>
+                                <td>
+                                    <div class="history-date">${formatDate(item.date)}</div>
+                                </td>
+                                <td>${item.nom}</td>
+                                <td>${item.temperature}°C</td>
+                                <td>
+                                    <div class="history-values">
+                                        x<sub>1</sub> = ${item.x1}<br>
+                                        x<sub>2</sub> = ${item.x2}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="history-result">${item.p_bulle} kPa</div>
+                                </td>
+                                <td>
+                                    <div class="history-actions">
+                                        <button class="btn-action btn-view" onclick="viewDetails(${item.id})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-action btn-delete" onclick="deleteItem(${item.id})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            historyTable.innerHTML = tableHTML;
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalCalculs = historyData.length;
+            const avgPressure = totalCalculs > 0 
+                ? (historyData.reduce((sum, item) => sum + parseFloat(item.p_bulle), 0) / totalCalculs).toFixed(1)
+                : 0;
+            const maxPressure = totalCalculs > 0
+                ? Math.max(...historyData.map(item => parseFloat(item.p_bulle))).toFixed(1)
+                : 0;
+            
+            // Calculate today's calculations
+            const today = new Date().toLocaleDateString('fr-FR');
+            const todayCalculs = historyData.filter(item => {
+                const itemDate = new Date(item.date).toLocaleDateString('fr-FR');
+                return itemDate === today;
+            }).length;
+
+            document.getElementById('totalCalculs').textContent = totalCalculs;
+            document.getElementById('avgPressure').textContent = avgPressure;
+            document.getElementById('todayCalculs').textContent = todayCalculs;
+            document.getElementById('maxPressure').textContent = maxPressure;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredData = [...historyData];
+            } else {
+                filteredData = historyData.filter(item => 
+                    item.nom.toLowerCase().includes(searchTerm) ||
+                    item.date.toLowerCase().includes(searchTerm) ||
+                    item.x1.includes(searchTerm) ||
+                    item.x2.includes(searchTerm) ||
+                    item.p_bulle.includes(searchTerm)
+                );
+            }
+            
+            displayHistory();
+        });
+
+        // View details
+        function viewDetails(id) {
+            const item = historyData.find(item => item.id === id);
+            if (!item) return;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-content">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Informations générales</h6>
+                            <p><strong>Nom :</strong> ${item.nom}</p>
+                            <p><strong>Date :</strong> ${formatDate(item.date)}</p>
+                            <p><strong>Température :</strong> ${item.temperature}°C</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Fractions molaires</h6>
+                            <p><strong>x<sub>1</sub> (Benzène) :</strong> ${item.x1}</p>
+                            <p><strong>x<sub>2</sub> (Toluène) :</strong> ${item.x2}</p>
+                            <p><strong>Somme :</strong> ${(parseFloat(item.x1) + parseFloat(item.x2)).toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Pressions de saturation</h6>
+                            <p><strong>P<sub>1,sat</sub> :</strong> ${item.p1sat} kPa</p>
+                            <p><strong>P<sub>2,sat</sub> :</strong> ${item.p2sat} kPa</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Résultats</h6>
+                            <p><strong>P<sub>bulle</sub> :</strong> ${item.p_bulle} kPa</p>
+                            <p><strong>y<sub>1</sub> :</strong> ${item.y1}</p>
+                            <p><strong>y<sub>2</sub> :</strong> ${item.y2}</p>
+                            <p><strong>y<sub>1</sub> + y<sub>2</sub> :</strong> ${item.somme_yi}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Delete item
+        async function deleteItem(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce calcul ?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/historique/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadHistory();
+                    showNotification('Calcul supprimé avec succès', 'success');
+                } else {
+                    showNotification('Erreur lors de la suppression', 'error');
+                }
+            } catch (error) {
+                showNotification('Erreur de connexion', 'error');
+            }
+        }
+
+        // Clear history
+        async function clearHistory() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer tout l\'historique ? Cette action est irréversible.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/historique/tout', {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadHistory();
+                    showNotification('Historique vidé avec succès', 'success');
+                } else {
+                    showNotification('Erreur lors de la suppression', 'error');
+                }
+            } catch (error) {
+                showNotification('Erreur de connexion', 'error');
+            }
+        }
+
+        // Export history
+        function exportHistory() {
+            if (filteredData.length === 0) {
+                showNotification('Aucune donnée à exporter', 'error');
+                return;
+            }
+
+            // Create CSV content
+            const headers = ['Date', 'Nom', 'Température (°C)', 'x1', 'x2', 'P1sat (kPa)', 'P2sat (kPa)', 'Pbulle (kPa)', 'y1', 'y2', 'Somme yi'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredData.map(item => [
+                    `"${formatDate(item.date)}"`,
+                    `"${item.nom}"`,
+                    item.temperature,
+                    item.x1,
+                    item.x2,
+                    item.p1sat,
+                    item.p2sat,
+                    item.p_bulle,
+                    item.y1,
+                    item.y2,
+                    item.somme_yi
+                ].join(','))
+            ].join('\n');
+
+            // Create and download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `historique_calculs_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification('Historique exporté avec succès', 'success');
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+            notification.style.zIndex = '3000';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close modal on outside click
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+        });
+    </script>
+<!-- Scripts -->
+    <script>
+        // Theme Management
+        const themeSwitch = document.getElementById('themeSwitch');
+        const themeIcon = document.getElementById('themeIcon');
+        const sliderIcon = document.getElementById('sliderIcon');
+        const sunIcon = document.getElementById('sunIcon');
+        
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        
+        // Theme switch event listener
+        themeSwitch.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (theme === 'light') {
+                themeSwitch.classList.add('active');
+                themeIcon.className = 'fas fa-sun theme-icon';
+                sliderIcon.className = 'fas fa-sun';
+                sunIcon.style.color = 'var(--accent-sky)';
+                themeIcon.style.color = 'var(--accent-sky)';
+            } else {
+                themeSwitch.classList.remove('active');
+                themeIcon.className = 'fas fa-moon theme-icon';
+                sliderIcon.className = 'fas fa-moon';
+                sunIcon.style.color = 'var(--text-secondary)';
+                themeIcon.style.color = 'var(--text-secondary)';
+            }
+        }
+        
+        // Initialize theme
+        setTheme(savedTheme);
+    </script>
+<script src="/static/js/session_timeout.js"></script>
+</body>
+</html>

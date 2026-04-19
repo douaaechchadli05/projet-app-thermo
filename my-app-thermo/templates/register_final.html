@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - ThermoCalc</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            margin: 0;
+            padding: 20px 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 15px 50px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-bottom: 50px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b9d, #87ceeb);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff6b9d, #87ceeb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #ff6b9d;
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .form-control.is-valid {
+            border-color: #28a745;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d, #87ceeb);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .validation-message {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .validation-message.error {
+            color: #dc3545;
+            display: block;
+        }
+
+        .validation-message.success {
+            color: #28a745;
+            display: block;
+        }
+
+        .validation-message.info {
+            color: #87ceeb;
+            display: block;
+        }
+
+        .password-strength {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-bar.active.weak {
+            background: #dc3545;
+        }
+
+        .strength-bar.active.medium {
+            background: #ffc107;
+        }
+
+        .strength-bar.active.strong {
+            background: #28a745;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: #ff6b9d;
+        }
+
+        .checkbox-group label {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .checkbox-group a {
+            color: #87ceeb;
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            color: #ff6b9d;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .links p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .links a {
+            color: #87ceeb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            color: #ff6b9d;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link:hover {
+            color: #ff6b9d;
+            transform: translateX(-5px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 0;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+            
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .back-link {
+                position: static;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to Home -->
+    <a href="/" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Accueil
+    </a>
+
+    <div class="container">
+        <div class="card">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="logo">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1>Inscription</h1>
+                <p class="subtitle">Créez votre espace de calcul</p>
+            </div>
+
+            <!-- Form -->
+            <form id="registerForm" method="POST" autocomplete="off">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ error|safe }}
+                    </div>
+                {% endif %}
+
+                {% if success %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>{{ success }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Nom d'utilisateur</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="username" 
+                           name="username" 
+                           placeholder="Choisissez un nom d'utilisateur" 
+                           autocomplete="off"
+                           required
+                           minlength="3"
+                           maxlength="20">
+                    <i class="fas fa-user input-icon"></i>
+                    <div class="validation-message" id="usernameMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Adresse email</label>
+                    <input type="email" 
+                           class="form-control" 
+                           id="email" 
+                           name="email" 
+                           placeholder="votre.email@exemple.com" 
+                           autocomplete="off"
+                           required>
+                    <i class="fas fa-envelope input-icon"></i>
+                    <div class="validation-message" id="emailMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" 
+                           class="form-control" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Choisissez un mot de passe sécurisé" 
+                           autocomplete="new-password"
+                           required
+                           minlength="6">
+                    <i class="fas fa-lock input-icon"></i>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                    </div>
+                    <div class="validation-message" id="passwordMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" 
+                           class="form-control" 
+                           id="confirmPassword" 
+                           name="confirmPassword" 
+                           placeholder="Confirmez votre mot de passe" 
+                           autocomplete="new-password"
+                           required>
+                    <i class="fas fa-lock input-icon"></i>
+                    <div class="validation-message" id="confirmPasswordMessage"></div>
+                </div>
+
+                <!-- Terms -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        J'accepte les <a href="/terms" target="_blank">conditions d'utilisation</a> 
+                        et la <a href="/privacy" target="_blank">politique de confidentialité</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Créer mon compte
+                </button>
+            </form>
+
+            <!-- Links -->
+            <div class="links">
+                <p>Déjà inscrit ?</p>
+                <a href="/login">Se connecter</a>
+            </div>
+        </div>
+        
+        <!-- Espace supplémentaire pour garantir le scroll -->
+        <div style="height: 100px;"></div>
+    </div>
+
+    <script>
+        // Script simplifié et direct
+        console.log('Script chargé');
+        
+        // Attendre que le DOM soit prêt
+        function waitForDOM() {
+            if (document.getElementById('registerForm')) {
+                console.log('DOM trouvé, initialisation...');
+                initForm();
+            } else {
+                console.log('DOM pas encore prêt, nouvelle tentative...');
+                setTimeout(waitForDOM, 100);
+            }
+        }
+        
+        function initForm() {
+            // Récupérer les éléments
+            const form = document.getElementById('registerForm');
+            const username = document.getElementById('username');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const terms = document.getElementById('terms');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            console.log('Éléments trouvés:', {form, username, email, password, confirmPassword, terms, submitBtn});
+            
+            if (!form || !username || !email || !password || !confirmPassword || !terms || !submitBtn) {
+                console.error('Éléments manquants');
+                return;
+            }
+            
+            // Username validation
+            username.addEventListener('input', function() {
+                console.log('Username input:', this.value);
+                const value = this.value.trim();
+                const message = document.getElementById('usernameMessage');
+                
+                if (value.length < 3) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    message.className = 'validation-message error';
+                    message.textContent = 'Le nom d\'utilisateur doit contenir au moins 3 caractères';
+                } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    message.className = 'validation-message error';
+                    message.textContent = 'Uniquement lettres, chiffres et underscore';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    message.className = 'validation-message success';
+                    message.textContent = 'Nom d\'utilisateur valide';
+                }
+            });
+            
+            // Email validation
+            email.addEventListener('input', function() {
+                console.log('Email input:', this.value);
+                const value = this.value.trim();
+                const message = document.getElementById('emailMessage');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!emailRegex.test(value)) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    message.className = 'validation-message error';
+                    message.textContent = 'Veuillez entrer une adresse email valide';
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    message.className = 'validation-message success';
+                    message.textContent = 'Email valide';
+                }
+            });
+            
+            // Password validation
+            password.addEventListener('input', function() {
+                console.log('Password input:', this.value);
+                const value = this.value;
+                const message = document.getElementById('passwordMessage');
+                const strengthBars = document.querySelectorAll('.strength-bar');
+                
+                // Reset strength bars
+                strengthBars.forEach(bar => bar.className = 'strength-bar');
+                
+                if (value.length < 6) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    message.className = 'validation-message error';
+                    message.textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+                } else {
+                    let strength = 0;
+                    if (value.length >= 6) strength++;
+                    if (value.length >= 10) strength++;
+                    if (/[a-z]/.test(value) && /[A-Z]/.test(value)) strength++;
+                    if (/[0-9]/.test(value)) strength++;
+                    if (/[^a-zA-Z0-9]/.test(value)) strength++;
+                    
+                    if (strength <= 2) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                        message.className = 'validation-message error';
+                        message.textContent = 'Mot de passe faible';
+                        for (let i = 0; i < 1; i++) {
+                            strengthBars[i].classList.add('active', 'weak');
+                        }
+                    } else if (strength <= 3) {
+                        this.classList.remove('is-invalid', 'is-valid');
+                        message.className = 'validation-message info';
+                        message.textContent = 'Mot de passe moyen';
+                        for (let i = 0; i < 2; i++) {
+                            strengthBars[i].classList.add('active', 'medium');
+                        }
+                    } else {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                        message.className = 'validation-message success';
+                        message.textContent = 'Mot de passe fort';
+                        for (let i = 0; i < 4; i++) {
+                            strengthBars[i].classList.add('active', 'strong');
+                        }
+                    }
+                }
+                
+                // Check confirmation if already filled
+                if (confirmPassword.value) {
+                    confirmPassword.dispatchEvent(new Event('input'));
+                }
+            });
+            
+            // Confirm password validation
+            confirmPassword.addEventListener('input', function() {
+                console.log('Confirm password input:', this.value);
+                const value = this.value;
+                const message = document.getElementById('confirmPasswordMessage');
+                
+                if (value !== password.value) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    message.className = 'validation-message error';
+                    message.textContent = 'Les mots de passe ne correspondent pas';
+                } else if (value.length > 0) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    message.className = 'validation-message success';
+                    message.textContent = 'Les mots de passe correspondent';
+                }
+            });
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                console.log('Form submission attempt');
+                let isValid = true;
+                
+                // Check all fields
+                if (username.classList.contains('is-invalid') || !username.value.trim()) {
+                    isValid = false;
+                    username.classList.add('is-invalid');
+                }
+                
+                if (email.classList.contains('is-invalid') || !email.value.trim()) {
+                    isValid = false;
+                    email.classList.add('is-invalid');
+                }
+                
+                if (password.classList.contains('is-invalid') || !password.value.trim()) {
+                    isValid = false;
+                    password.classList.add('is-invalid');
+                }
+                
+                if (confirmPassword.classList.contains('is-invalid') || !confirmPassword.value.trim()) {
+                    isValid = false;
+                    confirmPassword.classList.add('is-invalid');
+                }
+                
+                if (!terms.checked) {
+                    isValid = false;
+                    alert('Veuillez accepter les conditions d\'utilisation');
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    console.log('Form validation failed');
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Création en cours...';
+                    console.log('Form submitted successfully');
+                }
+            });
+            
+            // Focus on first field
+            username.focus();
+            console.log('Formulaire initialisé avec succès');
+        }
+        
+        // Démarrer l'initialisation
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForDOM);
+        } else {
+            waitForDOM();
+        }
+    </script>
+</body>
+</html>

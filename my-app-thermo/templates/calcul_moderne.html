@@ -1,147 +1,233 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Pression de Bulle - Benzène/Toluène</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#fff0f5;
+  --surface:#ffffff;
+  --border:#ffb3d9;
+  --primary:#ff9ec7;
+  --secondary:#e8b4ff;
+  --gradient:linear-gradient(135deg,#ff9ec7 0%, #e8b4ff 50%, #87ceeb 100%);
+  --text:#2a1a3a;
+  --muted:#64748b;
+  --success:#ff9ec7;
+  --danger:#ff6b9d;
+  --font-main:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
 
-{% block title %}Accueil - Calculateur Loi de Raoult{% endblock %}
+*{margin:0;padding:0;box-sizing:border-box;}
 
-{% block content %}
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <!-- Hero Section -->
-        <div class="card border-0 shadow-lg mb-4">
-            <div class="card-body text-center p-5">
-                <h1 class="display-4 fw-bold text-primary mb-4">
-                    <i class="fas fa-flask me-3"></i>Calculateur Loi de Raoult
-                </h1>
-                <p class="lead mb-4">
-                    Application web interactive pour résoudre les exercices thermodynamiques des mélanges binaires
-                </p>
-                <div class="badge bg-info text-dark mb-4">
-                    <i class="fas fa-temperature-high me-1"></i>
-                    Température : 80°C
-                </div>
-                
-                {% if not current_user.is_authenticated %}
-                <div class="d-grid gap-3 d-md-flex justify-content-md-center">
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg px-4">
-                        <i class="fas fa-user-plus me-2"></i>S'inscrire
-                    </a>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4">
-                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
-                    </a>
-                </div>
-                {% else %}
-                <div class="d-grid gap-3 d-md-flex justify-content-md-center">
-                    <a href="{{ url_for('calcul.calcul_page') }}" class="btn btn-primary btn-lg px-4">
-                        <i class="fas fa-calculator me-2"></i>Commencer les calculs
-                    </a>
-                    {% if current_user.is_admin() %}
-                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-warning btn-lg px-4">
-                        <i class="fas fa-shield-alt me-2"></i>Dashboard Admin
-                    </a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
+body{
+  font-family:var(--font-main);
+  background:var(--bg);
+  color:var(--text);
+}
 
-        <!-- Théorie Section -->
-        <div class="card shadow mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-book me-2"></i>Théorie : Loi de Raoult
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-primary">Mélange étudié :</h6>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-vial text-success me-2"></i>Benzène (C<sub>6</sub>H<sub>6</sub>)</li>
-                            <li><i class="fas fa-vial text-warning me-2"></i>Toluène (C<sub>7</sub>H<sub>8</sub>)</li>
-                        </ul>
-                        
-                        <h6 class="fw-bold text-primary">Conditions :</h6>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-temperature-high text-danger me-2"></i>Température : 80°C</li>
-                            <li><i class="fas fa-tachometer-alt text-info me-2"></i>P<sub>sat</sub> Benzène : 101.3 kPa</li>
-                            <li><i class="fas fa-tachometer-alt text-info me-2"></i>P<sub>sat</sub> Toluène : 40.0 kPa</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-primary">Équations :</h6>
-                        <div class="alert alert-light">
-                            <p class="mb-2"><strong>Q1 - Pression de bulle :</strong></p>
-                            <p class="text-center mb-3">P<sub>bulle</sub> = x<sub>1</sub> × P<sub>1,sat</sub> + x<sub>2</sub> × P<sub>2,sat</sub></p>
-                            
-                            <p class="mb-2"><strong>Q2 - Fractions vapeur :</strong></p>
-                            <p class="text-center mb-2">y<sub>1</sub> = (x<sub>1</sub> × P<sub>1,sat</sub>) / P<sub>bulle</sub></p>
-                            <p class="text-center mb-3">y<sub>2</sub> = (x<sub>2</sub> × P<sub>2,sat</sub>) / P<sub>bulle</sub></p>
-                            
-                            <p class="mb-2"><strong>Q3 - Vérification :</strong></p>
-                            <p class="text-center">y<sub>1</sub> + y<sub>2</sub> = 1</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('calcul.theory') }}" class="btn btn-outline-info">
-                        <i class="fas fa-book-open me-2"></i>En savoir plus
-                    </a>
-                </div>
-            </div>
-        </div>
+nav{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:1.2rem 2rem;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:0.8rem;
+}
 
-        <!-- Features Section -->
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <i class="fas fa-calculator fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Calculs Instantanés</h5>
-                        <p class="card-text text-muted">Effectuez vos calculs thermodynamiques en temps réel avec validation automatique.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <i class="fas fa-history fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Historique Complet</h5>
-                        <p class="card-text text-muted">Suivez tous vos calculs avec historique détaillé et export CSV.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
-                        <h5 class="card-title">Sécurité Maximale</h5>
-                        <p class="card-text text-muted">Protection anti-DDoS, géolocalisation et monitoring en temps réel.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+.logo{
+  font-weight:600;
+  font-size:1.3rem;
+  background:var(--gradient);
+  background-clip:text;           
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
 
-        <!-- Instructions Section -->
-        {% if not current_user.is_authenticated %}
-        <div class="card border-info">
-            <div class="card-body">
-                <h5 class="card-title text-info">
-                    <i class="fas fa-info-circle me-2"></i>Comment commencer ?
-                </h5>
-                <ol class="mb-0">
-                    <li class="mb-2">Créez votre compte utilisateur avec email valide</li>
-                    <li class="mb-2">Vérifiez votre email via le lien reçu</li>
-                    <li class="mb-2">Connectez-vous et accédez à la page de calcul</li>
-                    <li class="mb-2">Entrez vos fractions molaires (x<sub>1</sub> et x<sub>2</sub>)</li>
-                    <li class="mb-2">Obtenez instantanément les résultats P<sub>bulle</sub>, y<sub>1</sub>, y<sub>2</sub></li>
-                    <li>Consultez votre historique et statistiques personnelles</li>
-                </ol>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
+.nav-links{
+  display:flex;
+  gap:1rem;
+  align-items:center;
+}
+
+.nav-links a{
+  color:var(--text);
+  text-decoration:none;
+  padding:0.5rem 1rem;
+  border-radius:8px;
+  transition:0.2s;
+  font-weight:500;
+}
+
+.nav-links a:hover{
+  background:var(--bg);
+}
+
+.btn-hist{
+  background:var(--gradient);
+  color:white;
+  border:none;
+  padding:0.6rem 1.2rem;
+  border-radius:40px;
+  font-weight:600;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:0.2s;
+  font-family:var(--font-main);
+}
+
+.btn-hist:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(255,158,199,0.3);
+}
+
+.page{
+  max-width:900px;
+  margin:auto;
+  padding:2rem;
+}
+
+@media(max-width:700px){
+  .page{
+    padding:1rem;
+  }
+  nav{
+    padding:1rem;
+  }
+  .nav-links{
+    display:none;
+  }
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:1.5rem;
+  margin-bottom:1.2rem;
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+.intro{
+  background:linear-gradient(135deg,#ffffff,#fdf2ff);
+  border:1px solid #f0d9ff;
+}
+
+.section-title{
+  font-size:0.95rem;   
+  text-transform:uppercase;
+  color:#0f172a;         
+  margin-bottom:0.8rem;
+  letter-spacing:1px;
+  font-weight:600;        
+}
+
+.formula{
+  font-family:var(--mono);
+  background:#f8faff;
+  padding:8px;
+  border-radius:8px;
+  margin-top:6px;
+  font-size:0.85rem;
+}
+
+.inputs-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:1rem;
+}
+
+@media(max-width:700px){
+  .inputs-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+label{
+  font-size:0.8rem;
+  color:var(--muted);
+  display:block;
+}
+
+input{
+  width:100%;
+  margin-top:5px;
+  padding:0.65rem;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-family:var(--mono);
+  transition:0.2s;
+}
+
+input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 2px rgba(255,158,199,0.2);
+}
+
+.btn{
+  width:100%;
+  padding:0.9rem;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+  font-family:var(--font-main);
+  font-size:1rem;
+}
+
+.btn-main{
+  background:var(--gradient);
+  color:white;
+}
+
+.btn-main:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(255,158,199,0.3);
+}
+
+.btn-reset{
+  background:#e2e8f0;
+  color:#475569;
+  margin-top:0.6rem;
+}
+
+.sum-bar{
+  margin-top:12px;
+  padding:8px;
+  border-radius:8px;
+  text-align:center;
+  font-size:0.85rem;
+}
+
+.sum-bar.ok{background:#ecfdf5;color:var(--success);}
+.sum-bar.bad{background:#fef2f2;color:var(--danger);}
+
+#resultats{
+  display:none;
+  margin-top:1rem;
+  animation:fade 0.4s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;}
+}
+
+.q-block{
+  background:#ffffff;
+  border-radius:14px;
+  padding:1.2rem;
+  margin-bottom:1rem;
+  border:1px solid var(--border);
+  border-left:5px solid var(--primary);
+}
 
 .q-block h3{
   margin-bottom:0.5rem;
@@ -381,8 +467,17 @@
 <body>
 
 <nav>
-  <div class="logo">⚗️ Exercice calcul de pression de bulle</div>
-  <button class="btn-hist" onclick="ouvrirHistorique()">📜 Historique</button>
+  <div class="logo">Pression de Bulle</div>
+  <div class="nav-links">
+    <a href="/">Accueil</a>
+    <a href="/calcul">Calcul</a>
+    {% if current_user.is_authenticated %}
+      <a href="/logout">Déconnexion</a>
+    {% else %}
+      <a href="/login">Connexion</a>
+    {% endif %}
+  </div>
+  <button class="btn-hist" onclick="ouvrirHistorique()">Historique</button>
 </nav>
 
 <div class="page">
@@ -393,9 +488,9 @@
     Cette application calcule la <b>pression de bulle</b> d'un mélange binaire
     <b>Benzène / Toluène</b> en utilisant la loi de Raoult et l'équation d'Antoine.
   </p>
-  <div class="formula">Loi de Raoult : P = x₁·P₁* + x₂·P₂*</div>
-  <div class="formula">Antoine : log₁₀(P*) = A - B / (T + C)  [P en mmHg, T en °C]</div>
-  <div class="formula">Fraction vapeur : yᵢ = (xᵢ·Pᵢ*) / P</div>
+  <div class="formula">Loi de Raoult : P = x·P* + x·P*</div>
+  <div class="formula">Antoine : log(P*) = A - B / (T + C)  [P en mmHg, T en °C]</div>
+  <div class="formula">Fraction vapeur : y = (x·P*) / P</div>
 </div>
 
 <div class="card">
@@ -411,15 +506,15 @@
       <input type="number" id="temperature" value="80"/>
     </div>
     <div>
-      <label>Fraction molaire de Benzène (x₁)</label>
+      <label>Fraction molaire de Benzène (x)</label>
       <input type="number" id="x1" value="0.4" step="0.01" min="0" max="1" oninput="autoX2()"/>
     </div>
     <div>
-      <label>Fraction molaire de Toluène (x₂)</label>
+      <label>Fraction molaire de Toluène (x)</label>
       <input type="number" id="x2" value="0.6" step="0.01" min="0" max="1" oninput="updateSum()"/>
     </div>
   </div>
-  <div id="sum-bar" class="sum-bar ok">x₁ + x₂ = 1.00</div>
+  <div id="sum-bar" class="sum-bar ok">x + x = 1.00</div>
   <div id="error-bar" class="error-bar"></div>
 </div>
 
@@ -446,7 +541,7 @@
   </div>
 
   <div class="q-block">
-    <h3>Vérification (Σyᵢ doit = 1)</h3>
+    <h3>Vérification (y doit = 1)</h3>
     <p id="q3-s"></p>
   </div>
 
@@ -458,12 +553,12 @@
 <div id="modalHistorique" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>📋 Historique des calculs</h2>
+      <h2>Historique des calculs</h2>
       <button class="close-modal" onclick="fermerHistorique()">&times;</button>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-delete-all" onclick="supprimerToutHistorique()">🗑️ Tout supprimer</button>
-      <button class="btn-modal-refresh" onclick="chargerHistorique()">🔄 Rafraîchir</button>
+      <button class="btn-modal-delete-all" onclick="supprimerToutHistorique()">Tout supprimer</button>
+      <button class="btn-modal-refresh" onclick="chargerHistorique()">Rafraîchir</button>
     </div>
     <div id="historique-container">
       <div class="loading">Chargement de l'historique...</div>
@@ -487,7 +582,7 @@ function updateSum() {
   const x2 = parseFloat(document.getElementById('x2').value) || 0;
   const sum = x1 + x2;
   const bar = document.getElementById('sum-bar');
-  bar.innerText = "x₁ + x₂ = " + sum.toFixed(4);
+  bar.innerText = "x + x = " + sum.toFixed(4);
   bar.className = "sum-bar " + (Math.abs(sum - 1) < 0.01 ? "ok" : "bad");
 }
 
@@ -561,7 +656,7 @@ async function calculer() {
   }
 
   if (Math.abs(x1 + x2 - 1) > 0.01) {
-    showError("x₁ + x₂ doit être égal à 1. Corrigez les fractions molaires.");
+    showError("x + x doit être égal à 1. Corrigez les fractions molaires.");
     return;
   }
 
@@ -586,14 +681,14 @@ async function calculer() {
 
     // Affichage des résultats
     document.getElementById('r-ant-benzene').innerHTML =
-      `Benzène → P₁* = ${data.antoine.p1sat_kpa.toFixed(3)} kPa (${data.antoine.p1sat_mmhg} mmHg)`;
+      `Benzène P* = ${data.antoine.p1sat_kpa.toFixed(3)} kPa (${data.antoine.p1sat_mmhg} mmHg)`;
     document.getElementById('r-ant-toluene').innerHTML =
-      `Toluène → P₂* = ${data.antoine.p2sat_kpa.toFixed(3)} kPa (${data.antoine.p2sat_mmhg} mmHg)`;
+      `Toluène P* = ${data.antoine.p2sat_kpa.toFixed(3)} kPa (${data.antoine.p2sat_mmhg} mmHg)`;
     document.getElementById('q1-result').innerHTML = `P = ${data.resultats.p_bulle.toFixed(3)} kPa`;
-    document.getElementById('q2-r1').innerHTML = `y₁ (Benzène) = ${data.resultats.y1.toFixed(4)}`;
-    document.getElementById('q2-r2').innerHTML = `y₂ (Toluène) = ${data.resultats.y2.toFixed(4)}`;
+    document.getElementById('q2-r1').innerHTML = `y (Benzène) = ${data.resultats.y1.toFixed(4)}`;
+    document.getElementById('q2-r2').innerHTML = `y (Toluène) = ${data.resultats.y2.toFixed(4)}`;
     document.getElementById('q3-s').innerHTML =
-      `Σyᵢ = ${data.resultats.somme_yi.toFixed(4)} ${data.resultats.verif_ok ? '✓ OK' : '✗ Erreur'}`;
+      `y = ${data.resultats.somme_yi.toFixed(4)} ${data.resultats.verif_ok ? 'OK' : 'Erreur'}`;
 
     document.getElementById('resultats').style.display = 'block';
     
@@ -610,11 +705,11 @@ async function chargerHistorique() {
   container.innerHTML = '<div class="loading">Chargement...</div>';
   
   try {
-    const response = await fetch('/historique');
+    const response = await fetch('/historique-api');
     const data = await response.json();
     
     if (data.length === 0) {
-      container.innerHTML = '<div class="empty-history">📭 Aucun calcul enregistré</div>';
+      container.innerHTML = '<div class="empty-history">Aucun calcul enregistré</div>';
       return;
     }
     
@@ -626,21 +721,21 @@ async function chargerHistorique() {
               <span class="historique-nom">${escapeHtml(item.nom || 'Sans nom')}</span>
               <div class="historique-date">${item.date}</div>
             </div>
-            <button class="delete-btn" onclick="supprimerCalcul(${item.id})">🗑️ Supprimer</button>
+            <button class="delete-btn" onclick="supprimerCalcul(${item.id})">Supprimer</button>
           </div>
           <div class="historique-details">
             <span>T = ${item.temperature}°C</span>
-            <span>x₁ = ${item.x1}</span>
-            <span>x₂ = ${item.x2}</span>
+            <span>x = ${item.x1}</span>
+            <span>x = ${item.x2}</span>
             <span>P = ${item.p_bulle} kPa</span>
-            <span>y₁ = ${item.y1}</span>
-            <span>y₂ = ${item.y2}</span>
+            <span>y = ${item.y1}</span>
+            <span>y = ${item.y2}</span>
           </div>
         </div>
       `).join('') + '</div>';
       
   } catch (error) {
-    container.innerHTML = '<div class="empty-history">❌ Erreur de chargement</div>';
+    container.innerHTML = '<div class="empty-history">Erreur de chargement</div>';
     console.error(error);
   }
 }
@@ -659,7 +754,7 @@ async function supprimerCalcul(id) {
 }
 
 async function supprimerToutHistorique() {
-  if (!confirm('⚠️ Supprimer TOUT l\'historique ? Cette action est irréversible.')) return;
+  if (!confirm('Supprimer TOUT l\'historique ? Cette action est irréversible.')) return;
   
   try {
     const response = await fetch('/historique/tout', { method: 'DELETE' });

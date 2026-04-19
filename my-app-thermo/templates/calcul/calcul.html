@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Calcul - Loi de Raoult{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Formulaire de calcul -->
+        <div class="card shadow-lg mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calculator me-2"></i>Calcul de la Loi de Raoult
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="calculForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.x1_benzene.label(class="form-label fw-bold") }}
+                            <div class="input-group">
+                                <span class="input-group-text">C<sub>6</sub>H<sub>6</sub></span>
+                                {{ form.x1_benzene(class="form-control" + (" is-invalid" if form.x1_benzene.errors else ""), placeholder="0-100") }}
+                                <span class="input-group-text">%</span>
+                            </div>
+                            {% if form.x1_benzene.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.x1_benzene.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.x2_toluene.label(class="form-label fw-bold") }}
+                            <div class="input-group">
+                                <span class="input-group-text">C<sub>7</sub>H<sub>8</sub></span>
+                                {{ form.x2_toluene(class="form-control" + (" is-invalid" if form.x2_toluene.errors else ""), placeholder="0-100") }}
+                                <span class="input-group-text">%</span>
+                            </div>
+                            {% if form.x2_toluene.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.x2_toluene.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Barre de progression de la somme -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="fw-bold">Vérification de la somme (x<sub>1</sub> + x<sub>2</sub>)</small>
+                            <span id="sumValue" class="badge bg-secondary">0%</span>
+                        </div>
+                        <div class="progress mt-1">
+                            <div id="sumProgress" class="progress-bar" role="progressbar" style="width: 0%">
+                                0%
+                            </div>
+                        </div>
+                        <small id="sumMessage" class="form-text text-muted">La somme doit être égale à 100%</small>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Résultats -->
+        {% if results %}
+        <div class="card shadow-lg mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Résultats du calcul
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <h6 class="text-muted mb-2">Pression de bulle</h6>
+                            <div class="h3 text-primary">{{ results.p_bulle }} kPa</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <h6 class="text-muted mb-2">y<sub>1</sub> (Benzène)</h6>
+                            <div class="h3 text-success">{{ results.y1 }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <h6 class="text-muted mb-2">y<sub>2</sub> (Toluène)</h6>
+                            <div class="h3 text-warning">{{ results.y2 }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vérification -->
+                <div class="alert {% if results.verification %}alert-success{% else %}alert-danger{% endif %}">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-calculator me-2"></i>Vérification de l'équation
+                    </h6>
+                    <p class="mb-0">
+                        y<sub>1</sub> + y<sub>2</sub> = {{ results.sum_yi }}
+                        {% if results.verification %}
+                            <span class="badge bg-success ms-2">
+                                <i class="fas fa-check me-1"></i>Correct
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger ms-2">
+                                <i class="fas fa-times me-1"></i>Erreur
+                            </span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- Formules appliquées -->
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-flask me-2"></i>Formules appliquées
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Pression de bulle :</strong></p>
+                                <p class="text-center">P<sub>bulle</sub> = x<sub>1</sub> × P<sub>1,sat</sub> + x<sub>2</sub> × P<sub>2,sat</sub></p>
+                                <p class="text-center">P<sub>bulle</sub> = {{ (results.x1_benzene/100)|round(2) }} × {{ constants.P1_SAT }} + {{ (results.x2_toluene/100)|round(2) }} × {{ constants.P2_SAT }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Fractions vapeur :</strong></p>
+                                <p class="text-center">y<sub>1</sub> = (x<sub>1</sub> × P<sub>1,sat</sub>) / P<sub>bulle</sub></p>
+                                <p class="text-center">y<sub>2</sub> = (x<sub>2</sub> × P<sub>2,sat</sub>) / P<sub>bulle</sub></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Constantes -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Constantes du problème
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Température</h6>
+                    <div class="h5 text-primary">{{ constants.TEMPERATURE }}°C</div>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">P<sub>sat</sub> Benzène</h6>
+                    <div class="h5 text-success">{{ constants.P1_SAT }} kPa</div>
+                </div>
+                <div class="mb-0">
+                    <h6 class="text-muted">P<sub>sat</sub> Toluène</h6>
+                    <div class="h5 text-warning">{{ constants.P2_SAT }} kPa</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Historique récent -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-history me-2"></i>Historique récent
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if history %}
+                    <div class="list-group list-group-flush">
+                        {% for calcul in history[:5] %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <small class="text-muted">{{ calcul.created_at.strftime('%d/%m %H:%M') }}</small>
+                                    <div class="small">
+                                        C<sub>6</sub>H<sub>6</sub>: {{ calcul.x1_benzene }}% | 
+                                        C<sub>7</sub>H<sub>8</sub>: {{ calcul.x2_toluene }}%
+                                    </div>
+                                    <div class="small text-primary">
+                                        P<sub>bulle</sub>: {{ calcul.p_bulle }} kPa
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('calcul.history') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-list me-1"></i>Voir tout l'historique
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center mb-0">
+                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                        Aucun calcul enregistré
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Liens utiles -->
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">
+                    <i class="fas fa-link me-2"></i>Liens utiles
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('calcul.theory') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-book me-1"></i>Théorie complète
+                    </a>
+                    <a href="{{ url_for('calcul.help') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-question-circle me-1"></i>Aide
+                    </a>
+                    <a href="{{ url_for('calcul.statistics') }}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-chart-bar me-1"></i>Mes statistiques
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const x1Input = document.getElementById('x1_benzene');
+    const x2Input = document.getElementById('x2_toluene');
+    const sumProgress = document.getElementById('sumProgress');
+    const sumValue = document.getElementById('sumValue');
+    const sumMessage = document.getElementById('sumMessage');
+    const form = document.getElementById('calculForm');
+    
+    function updateSum() {
+        const x1 = parseFloat(x1Input.value) || 0;
+        const x2 = parseFloat(x2Input.value) || 0;
+        const sum = x1 + x2;
+        
+        // Mettre à jour la barre de progression
+        sumProgress.style.width = sum + '%';
+        sumProgress.textContent = sum.toFixed(1) + '%';
+        sumValue.textContent = sum.toFixed(1) + '%';
+        
+        // Validation visuelle
+        const tolerance = 0.1; // Tolérance de 0.1%
+        if (Math.abs(sum - 100) <= tolerance) {
+            sumProgress.className = 'progress-bar bg-success';
+            sumMessage.textContent = 'Parfait ! La somme est correcte.';
+            sumMessage.className = 'form-text text-success';
+        } else if (sum < 100) {
+            sumProgress.className = 'progress-bar bg-warning';
+            sumMessage.textContent = `Il manque ${(100 - sum).toFixed(1)}% pour atteindre 100%`;
+            sumMessage.className = 'form-text text-warning';
+        } else {
+            sumProgress.className = 'progress-bar bg-danger';
+            sumMessage.textContent = `La somme dépasse 100% de ${(sum - 100).toFixed(1)}%`;
+            sumMessage.className = 'form-text text-danger';
+        }
+    }
+    
+    // Auto-ajustement
+    x1Input.addEventListener('input', function() {
+        const x1 = parseFloat(this.value) || 0;
+        if (x1 >= 0 && x1 <= 100) {
+            const x2 = Math.max(0, Math.min(100, 100 - x1));
+            x2Input.value = x2.toFixed(2);
+        }
+        updateSum();
+    });
+    
+    x2Input.addEventListener('input', function() {
+        const x2 = parseFloat(this.value) || 0;
+        if (x2 >= 0 && x2 <= 100) {
+            const x1 = Math.max(0, Math.min(100, 100 - x2));
+            x1Input.value = x1.toFixed(2);
+        }
+        updateSum();
+    });
+    
+    // Validation avant soumission
+    form.addEventListener('submit', function(e) {
+        const x1 = parseFloat(x1Input.value) || 0;
+        const x2 = parseFloat(x2Input.value) || 0;
+        const sum = x1 + x2;
+        
+        if (Math.abs(sum - 100) > 0.1) {
+            e.preventDefault();
+            alert('La somme des fractions molaires doit être égale à 100%.\nActuellement: ' + sum.toFixed(2) + '%');
+            return false;
+        }
+        
+        if (x1 < 0 || x1 > 100 || x2 < 0 || x2 > 100) {
+            e.preventDefault();
+            alert('Les fractions molaires doivent être comprises entre 0% et 100%.');
+            return false;
+        }
+    });
+    
+    // Initialisation
+    updateSum();
+    
+    // Animation des résultats si présents
+    setTimeout(function() {
+        var resultCards = document.querySelectorAll('.card-body .h3');
+        if (resultCards.length > 0) {
+            resultCards.forEach(function(card, index) {
+                setTimeout(function() {
+                    card.style.transform = 'scale(1.1)';
+                    setTimeout(function() {
+                        card.style.transform = 'scale(1)';
+                    }, 200);
+                }, index * 100);
+            });
+        }
+    }, 500);
+});
+</script>
+{% endblock %}

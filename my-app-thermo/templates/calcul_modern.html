@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Loi de Raoult - Interface de Calcul</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(270deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 800% 800%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Navigation */
+        .navbar-modern {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #fff, #f093fb, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Calculator Card */
+        .calculator-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+        }
+
+        /* Form Controls */
+        .form-label-modern {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-control-modern {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            padding: 1rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-modern::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-control-modern:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+            color: white;
+        }
+
+        .input-group-modern {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group-text-modern {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            border-radius: 15px 0 0 15px;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-modern {
+            height: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-bar-modern {
+            background: var(--success-gradient);
+            border-radius: 10px;
+            transition: all 0.5s ease;
+        }
+
+        /* Buttons */
+        .btn-calculator {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0.5rem;
+        }
+
+        .btn-calculate {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(79, 172, 254, 0.6);
+        }
+
+        .btn-reset {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(250, 112, 154, 0.6);
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-unit {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 0.5rem;
+        }
+
+        /* Formula Display */
+        .formula-display {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .formula-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4facfe;
+        }
+
+        /* History Section */
+        .history-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .history-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-date {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+        }
+
+        .history-values {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+        }
+
+        .history-result {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4facfe;
+        }
+
+        .btn-delete {
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alert Messages */
+        .alert-modern {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            color: white;
+        }
+
+        .alert-success-modern {
+            background: rgba(79, 172, 254, 0.2);
+            border-color: rgba(79, 172, 254, 0.3);
+        }
+
+        .alert-error-modern {
+            background: rgba(245, 87, 108, 0.2);
+            border-color: rgba(245, 87, 108, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .calculator-card {
+                padding: 2rem;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .btn-delete {
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar-modern">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="navbar-brand">
+                    <i class="fas fa-flask me-2"></i>Calculateur Raoult
+                </div>
+                <div>
+                    <a href="/" class="nav-link">Accueil</a>
+                    <a href="/calcul" class="nav-link">Calcul</a>
+                    <a href="/historique" class="nav-link">Historique</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Calculator Section -->
+        <section class="calculator-section">
+            <h1 class="page-title">
+                <i class="fas fa-calculator me-3"></i>Calculateur Loi de Raoult
+            </h1>
+
+            <!-- Calculator Card -->
+            <div class="calculator-card">
+                <form id="calculatorForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group-modern">
+                                <label class="form-label-modern">
+                                    <i class="fas fa-vial me-2"></i>Benzène (C<sub>6</sub>H<sub>6</sub>)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text-modern">x<sub>1</sub></span>
+                                    <input type="number" 
+                                           class="form-control-modern" 
+                                           id="x1" 
+                                           placeholder="Entrez la fraction molaire"
+                                           step="0.01"
+                                           min="0"
+                                           max="1"
+                                           required>
+                                    <span class="input-group-text-modern">mol/mol</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-modern">
+                                <label class="form-label-modern">
+                                    <i class="fas fa-vial me-2"></i>Toluène (C<sub>7</sub>H<sub>8</sub>)
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text-modern">x<sub>2</sub></span>
+                                    <input type="number" 
+                                           class="form-control-modern" 
+                                           id="x2" 
+                                           placeholder="Entrez la fraction molaire"
+                                           step="0.01"
+                                           min="0"
+                                           max="1"
+                                           required>
+                                    <span class="input-group-text-modern">mol/mol</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar for Sum Validation -->
+                    <div class="mb-3">
+                        <label class="form-label-modern">
+                            <i class="fas fa-check-circle me-2"></i>Vérification de la somme (x<sub>1</sub> + x<sub>2</sub>)
+                        </label>
+                        <div class="progress-modern">
+                            <div class="progress-bar-modern" id="sumProgressBar" style="width: 0%"></div>
+                        </div>
+                        <div class="text-center">
+                            <span id="sumValue" class="badge bg-info">0.00</span>
+                            <span class="ms-2" id="sumMessage">La somme doit être égale à 1.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Temperature Display -->
+                    <div class="text-center mb-4">
+                        <div class="d-inline-block">
+                            <div class="alert-modern">
+                                <i class="fas fa-temperature-high me-2"></i>
+                                Température de référence : <strong>80°C</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="text-center">
+                        <button type="submit" class="btn-calculator btn-calculate">
+                            <i class="fas fa-play me-2"></i>Calculer
+                        </button>
+                        <button type="button" class="btn-calculator btn-reset" onclick="resetForm()">
+                            <i class="fas fa-redo me-2"></i>Réinitialiser
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="results-card">
+                    <h2 class="text-center mb-4">
+                        <i class="fas fa-chart-line me-2"></i>Résultats du calcul
+                    </h2>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="result-item">
+                                <div class="result-label">Pression de bulle</div>
+                                <div class="result-value">
+                                    <span id="pBulle">0.00</span>
+                                    <span class="result-unit">kPa</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="result-item">
+                                <div class="result-label">y<sub>1</sub> (Benzène)</div>
+                                <div class="result-value">
+                                    <span id="y1">0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="result-item">
+                                <div class="result-label">y<sub>2</sub> (Toluène)</div>
+                                <div class="result-value">
+                                    <span id="y2">0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Verification -->
+                    <div class="text-center mt-4">
+                        <div class="alert-modern" id="verificationAlert">
+                            <i class="fas fa-calculator me-2"></i>
+                            Vérification : y<sub>1</sub> + y<sub>2</sub> = <span id="sumYi">0.00</span>
+                            <span id="verificationStatus"></span>
+                        </div>
+                    </div>
+
+                    <!-- Formula Display -->
+                    <div class="formula-display">
+                        <div class="formula-title">Formules appliquées</div>
+                        <div class="mb-3">
+                            <strong>Pression de bulle :</strong><br>
+                            P<sub>bulle</sub> = x<sub>1</sub> × P<sub>1,sat</sub> + x<sub>2</sub> × P<sub>2,sat</sub><br>
+                            P<sub>bulle</sub> = <span id="formula1"></span>
+                        </div>
+                        <div>
+                            <strong>Fractions vapeur :</strong><br>
+                            y<sub>1</sub> = (x<sub>1</sub> × P<sub>1,sat</sub>) / P<sub>bulle</sub><br>
+                            y<sub>2</sub> = (x<sub>2</sub> × P<sub>2,sat</sub>) / P<sub>bulle</sub>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section class="history-section">
+            <div class="history-card">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-history me-2"></i>Historique des calculs
+                </h2>
+
+                <div id="historyList">
+                    <!-- History items will be loaded here -->
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn-calculator btn-reset" onclick="clearHistory()">
+                        <i class="fas fa-trash me-2"></i>Vider l'historique
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Constants
+        const P1_SAT = 101.3; // kPa for Benzene at 80°C
+        const P2_SAT = 40.0;  // kPa for Toluene at 80°C
+        const TEMPERATURE = 80.0; // °C
+
+        // DOM elements
+        const x1Input = document.getElementById('x1');
+        const x2Input = document.getElementById('x2');
+        const sumProgressBar = document.getElementById('sumProgressBar');
+        const sumValue = document.getElementById('sumValue');
+        const sumMessage = document.getElementById('sumMessage');
+        const calculatorForm = document.getElementById('calculatorForm');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultsSection = document.getElementById('resultsSection');
+        const historyList = document.getElementById('historyList');
+
+        // Update sum validation
+        function updateSum() {
+            const x1 = parseFloat(x1Input.value) || 0;
+            const x2 = parseFloat(x2Input.value) || 0;
+            const sum = x1 + x2;
+
+            // Update progress bar
+            const percentage = (sum / 1.0) * 100;
+            sumProgressBar.style.width = percentage + '%';
+            sumValue.textContent = sum.toFixed(2);
+
+            // Update validation message
+            const tolerance = 0.01;
+            if (Math.abs(sum - 1.0) <= tolerance) {
+                sumProgressBar.style.background = 'var(--success-gradient)';
+                sumMessage.textContent = 'Parfait !';
+                sumMessage.style.color = '#4facfe';
+            } else if (sum < 1.0) {
+                sumProgressBar.style.background = 'var(--warning-gradient)';
+                sumMessage.textContent = `Il manque ${(1.0 - sum).toFixed(2)}`;
+                sumMessage.style.color = '#fa709a';
+            } else {
+                sumProgressBar.style.background = 'var(--secondary-gradient)';
+                sumMessage.textContent = `Excès de ${(sum - 1.0).toFixed(2)}`;
+                sumMessage.style.color = '#f093fb';
+            }
+        }
+
+        // Auto-adjustment
+        x1Input.addEventListener('input', function() {
+            const x1 = parseFloat(this.value) || 0;
+            if (x1 >= 0 && x1 <= 1) {
+                const x2 = Math.max(0, Math.min(1, 1.0 - x1));
+                x2Input.value = x2.toFixed(2);
+            }
+            updateSum();
+        });
+
+        x2Input.addEventListener('input', function() {
+            const x2 = parseFloat(this.value) || 0;
+            if (x2 >= 0 && x2 <= 1) {
+                const x1 = Math.max(0, Math.min(1, 1.0 - x2));
+                x1Input.value = x1.toFixed(2);
+            }
+            updateSum();
+        });
+
+        // Form submission
+        calculatorForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const x1 = parseFloat(x1Input.value) || 0;
+            const x2 = parseFloat(x2Input.value) || 0;
+            const sum = x1 + x2;
+
+            // Validation
+            if (Math.abs(sum - 1.0) > 0.01) {
+                showAlert('La somme des fractions molaires doit être égale à 1.00', 'error');
+                return;
+            }
+
+            if (x1 < 0 || x1 > 1 || x2 < 0 || x2 > 1) {
+                showAlert('Les fractions molaires doivent être comprises entre 0 et 1', 'error');
+                return;
+            }
+
+            // Show loading
+            loadingSpinner.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            // Perform calculation
+            try {
+                const response = await fetch('/calculer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nom: 'Calcul Web',
+                        temperature: TEMPERATURE,
+                        x1: x1,
+                        x2: x2
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                    loadHistory();
+                } else {
+                    showAlert(data.erreur || 'Erreur lors du calcul', 'error');
+                }
+            } catch (error) {
+                showAlert('Erreur de connexion au serveur', 'error');
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        });
+
+        // Display results
+        function displayResults(data) {
+            const results = data.resultats;
+            
+            // Update result values
+            document.getElementById('pBulle').textContent = results.p_bulle.toFixed(2);
+            document.getElementById('y1').textContent = results.y1.toFixed(4);
+            document.getElementById('y2').textContent = results.y2.toFixed(4);
+            document.getElementById('sumYi').textContent = results.somme_yi.toFixed(4);
+
+            // Update verification status
+            const verificationAlert = document.getElementById('verificationAlert');
+            const verificationStatus = document.getElementById('verificationStatus');
+            
+            if (Math.abs(results.somme_yi - 1.0) < 0.001) {
+                verificationAlert.className = 'alert-modern alert-success-modern';
+                verificationStatus.innerHTML = ' <i class="fas fa-check-circle me-1"></i><strong>Correct</strong>';
+            } else {
+                verificationAlert.className = 'alert-modern alert-error-modern';
+                verificationStatus.innerHTML = ' <i class="fas fa-times-circle me-1"></i><strong>Erreur</strong>';
+            }
+
+            // Update formula display
+            const x1 = parseFloat(x1Input.value);
+            const x2 = parseFloat(x2Input.value);
+            document.getElementById('formula1').textContent = 
+                `${x1.toFixed(2)} × ${P1_SAT} + ${x2.toFixed(2)} × ${P2_SAT} = ${results.p_bulle.toFixed(2)} kPa`;
+
+            // Show results section
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Load history
+        async function loadHistory() {
+            try {
+                const response = await fetch('/historique-api');
+                const history = await response.json();
+
+                historyList.innerHTML = '';
+
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="text-center text-muted">Aucun historique disponible</div>';
+                    return;
+                }
+
+                history.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-info">
+                            <div class="history-date">${item.date}</div>
+                            <div class="history-values">
+                                x<sub>1</sub> = ${item.x1} | x<sub>2</sub> = ${item.x2}
+                            </div>
+                            <div class="history-result">
+                                P<sub>bulle</sub> = ${item.p_bulle} kPa
+                            </div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteItem(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Delete item
+        async function deleteItem(id) {
+            try {
+                const response = await fetch(`/historique/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadHistory();
+                    showAlert('Calcul supprimé avec succès', 'success');
+                }
+            } catch (error) {
+                showAlert('Erreur lors de la suppression', 'error');
+            }
+        }
+
+        // Clear history
+        async function clearHistory() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer tout l\'historique ?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/historique/tout', {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadHistory();
+                    showAlert('Historique vidé avec succès', 'success');
+                }
+            } catch (error) {
+                showAlert('Erreur lors de la suppression', 'error');
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            calculatorForm.reset();
+            updateSum();
+            resultsSection.style.display = 'none';
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert-modern alert-${type}-modern`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+            `;
+            
+            calculatorForm.prepend(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSum();
+            loadHistory();
+
+            // Add input animations
+            const inputs = document.querySelectorAll('.form-control-modern');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

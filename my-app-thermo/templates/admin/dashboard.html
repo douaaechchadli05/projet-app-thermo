@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Administrateur
+            </h1>
+            <div class="btn-group">
+                <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt me-1"></i>Rafraîchir
+                </button>
+                <a href="{{ url_for('admin.notifications') }}" class="btn btn-outline-warning btn-sm">
+                    <i class="fas fa-bell me-1"></i>Notifications
+                </a>
+            </div>
+        </div>
+        
+        <!-- Statistiques principales -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Utilisateurs</h6>
+                                <h2 class="mb-0">{{ stats.total_users }}</h2>
+                                <small class="opacity-75">{{ stats.verified_users }} vérifiés</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Calculs</h6>
+                                <h2 class="mb-0">{{ stats.total_calculs }}</h2>
+                                <small class="opacity-75">{{ stats.recent_calculs }} récents</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calculator fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Connexions</h6>
+                                <h2 class="mb-0">{{ stats.total_connections }}</h2>
+                                <small class="opacity-75">{{ stats.recent_connections }} 24h</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-sign-in-alt fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-warning text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Pays actifs</h6>
+                                <h2 class="mb-0">{{ stats.top_countries|length }}</h2>
+                                <small class="opacity-75">{{ stats.top_countries[0].country if stats.top_countries else 'N/A' }}</small>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-globe fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Anomalies et alertes -->
+        {% if anomalies %}
+        <div class="alert alert-danger mb-4">
+            <h6 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Anomalies détectées
+            </h6>
+            {% for anomaly in anomalies %}
+            <div class="mb-2">
+                <strong>{{ anomaly.type }}:</strong> {{ anomaly.message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <!-- Activité récente -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Activité récente
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_logs %}
+                        <div class="list-group list-group-flush">
+                            {% for log in recent_logs[:10] %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-{{ 'success' if log.action == 'login' else 'danger' if log.action == 'failed_login' else 'info' }} me-2">
+                                                {{ log.action }}
+                                            </span>
+                                            {% if log.user %}
+                                            <small class="text-muted">{{ log.user.username }}</small>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-globe me-1"></i>{{ log.ip_address }}
+                                            {% if log.country %}
+                                            | <i class="fas fa-flag me-1"></i>{{ log.country }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ log.created_at.strftime('%H:%M') }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('admin.security_logs') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-list me-1"></i>Voir tous les logs
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mb-0">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            Aucune activité récente
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calculs récents -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>Calculs récents
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_calculs %}
+                        <div class="list-group list-group-flush">
+                            {% for calcul, username in recent_calculs[:10] %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-bold">{{ username }}</div>
+                                        <small class="text-muted">
+                                            C<sub>6</sub>H<sub>6</sub>: {{ calcul.x1_benzene }}% | 
+                                            C<sub>7</sub>H<sub>8</sub>: {{ calcul.x2_toluene }}%
+                                        </small>
+                                        <div class="small text-primary">
+                                            P<sub>bulle</sub>: {{ calcul.p_bulle }} kPa
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ calcul.created_at.strftime('%H:%M') }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('admin.all_calculs') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-list me-1"></i>Voir tous les calculs
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mb-0">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            Aucun calcul récent
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- IP suspectes et pays -->
+        <div class="row">
+            <!-- IP suspectes -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>IP suspectes
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if suspicious_ips %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Adresse IP</th>
+                                        <th>Tentatives</th>
+                                        <th>Utilisateurs</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ip in suspicious_ips[:5] %}
+                                    <tr>
+                                        <td><code>{{ ip.ip_address }}</code></td>
+                                        <td>
+                                            <span class="badge bg-danger">{{ ip.attempts }}</span>
+                                        </td>
+                                        <td>{{ ip.unique_users }}</td>
+                                        <td>
+                                            <a href="{{ url_for('admin.ddos_monitoring') }}" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-ban"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('admin.ddos_monitoring') }}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-shield-alt me-1"></i>Voir monitoring DDoS
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mb-0">
+                            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i><br>
+                            Aucune IP suspecte détectée
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pays les plus actifs -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-globe me-2"></i>Pays les plus actifs
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if stats.top_countries %}
+                        <div class="list-group list-group-flush">
+                            {% for country in stats.top_countries[:10] %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold">{{ country.country }}</div>
+                                        <div class="progress mt-1" style="height: 5px;">
+                                            <div class="progress-bar bg-info" style="width: {{ ((country.count / stats.top_countries[0].count) * 100)|round|int }}%"></div>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-info">{{ country.count }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('admin.heatmap') }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-map me-1"></i>Voir heatmap mondiale
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mb-0">
+                            <i class="fas fa-globe fa-2x mb-2"></i><br>
+                            Aucune donnée géographique
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshDashboard() {
+    location.reload();
+}
+
+// Auto-rafraîchissement toutes les 30 secondes
+setInterval(function() {
+    // Optionnel: recharger les données via AJAX au lieu de recharger la page
+    console.log('Auto-refresh dashboard...');
+}, 30000);
+
+// Animation des statistiques
+document.addEventListener('DOMContentLoaded', function() {
+    const statCards = document.querySelectorAll('.card-body h2');
+    statCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.transform = 'scale(0.8)';
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
+                card.style.transition = 'all 0.3s ease';
+            }, 100);
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

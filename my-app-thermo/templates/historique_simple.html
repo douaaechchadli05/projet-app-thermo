@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historique des calculs</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+        .history-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        .history-item h4 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/calcul">Faire un calcul</a>
+            <a href="/logout">Déconnexion</a>
+        </div>
+        
+        <div class="card">
+            <h2>Historique des calculs</h2>
+            <div class="card-controls">
+                <button class="btn" onclick="chargerHistorique()">Rafraîchir</button>
+                <button class="btn btn-danger" onclick="supprimerTout()">Supprimer tout</button>
+            </div>
+            
+            <div id="historique-container" class="loading">
+                <p>Chargement de l'historique...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function chargerHistorique() {
+            const container = document.getElementById('historique-container');
+            container.innerHTML = '<div class="loading"><p>Chargement...</p></div>';
+            
+            try {
+                const response = await fetch('/historique-api');
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p style="text-align: center;">Aucun calcul historique pour le moment.</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(item => `
+                    <div class="history-item" id="item-${item.id}">
+                        <h4>${item.nom}</h4>
+                        <p><strong>Date:</strong> ${item.date}</p>
+                        <p><strong>Température:</strong> ${item.temperature}°C</p>
+                        <p><strong>Composition:</strong> x1=${item.x1}, x2=${item.x2}</p>
+                        <p><strong>Pression bulle:</strong> ${item.p_bulle} kPa</p>
+                        <p><strong>y1:</strong> ${item.y1}, <strong>y2:</strong> ${item.y2}</p>
+                        <p><strong>Somme y:</strong> ${item.somme_yi}</p>
+                        <button class="btn btn-danger" onclick="supprimerItem(${item.id})">Supprimer</button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                container.innerHTML = '<p style="text-align: center;">Erreur de chargement de l\'historique</p>';
+                console.error(error);
+            }
+        }
+
+        async function supprimerItem(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce calcul ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/historique/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    document.getElementById(`item-${id}`).remove();
+                } else {
+                    alert('Erreur lors de la suppression');
+                }
+            } catch (error) {
+                alert('Erreur de connexion');
+                console.error(error);
+            }
+        }
+
+        async function supprimerTout() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer tout l\'historique ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/historique/tout', {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    chargerHistorique();
+                } else {
+                    alert('Erreur lors de la suppression');
+                }
+            } catch (error) {
+                alert('Erreur de connexion');
+                console.error(error);
+            }
+        }
+
+        // Charger l'historique au démarrage
+        chargerHistorique();
+    </script>
+</body>
+</html>
